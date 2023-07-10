@@ -7,8 +7,8 @@ interface Deepl_properties {
 }
 
 const Deepl_properties : Deepl_properties = {
-  TranslationDeepl_description: "Translation with Deepl",
-  TranslationDeepl_displayName: "Translation with Deepl",
+  TranslationDeepl_description: "Translation with DeepL",
+  TranslationDeepl_displayName: "Translation with DeepL",
 
   SUCCESS_singular_text: "The translation result has successfully been imported.",
   SUCCESS_plural_text: "The translation results have successfully been imported.",
