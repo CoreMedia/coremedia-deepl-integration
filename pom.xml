@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.coremedia.labs.translation.deepl</groupId>
+  <artifactId>gcc</artifactId>
+  <packaging>pom</packaging>
+  <version>1.0.0-SNAPSHOT</version>
+
+  <description><![CDATA[
+    This module enables support for translating content via Deepl REST API.
+  ]]></description>
+
+  <modules>
+    <module>apps/studio-server</module>
+    <module>apps/user-changes</module>
+    <module>apps/workflow-server</module>
+  </modules>
+
+  <properties>
+    <maven.compiler.release>11</maven.compiler.release>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <docs.directory>${project.basedir}/docs</docs.directory>
+    <deepl.version>1.3.0</deepl.version>
+    <cm.middle.core.version>2304.1</cm.middle.core.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+
+      <dependency>
+        <groupId>com.deepl.api</groupId>
+        <artifactId>deepl-java</artifactId>
+        <version>${deepl.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.coremedia.cms</groupId>
+        <artifactId>middle-core-bom</artifactId>
+        <version>${cm.middle.core.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>license-maven-plugin</artifactId>
+          <version>2.0.0</version>
+          <configuration>
+            <cleanLicensesOutputDirectory>true</cleanLicensesOutputDirectory>
+            <errorRemedy>ignore</errorRemedy>
+            <excludedGroups>^com\.coremedia\.</excludedGroups>
+            <excludeTransitiveDependencies>true</excludeTransitiveDependencies>
+            <includeTransitiveDependencies>false</includeTransitiveDependencies>
+            <licensesOutputFile>${docs.directory}/third-party-licenses/licenses.xml</licensesOutputFile>
+            <licensesOutputDirectory>${docs.directory}/third-party-licenses</licensesOutputDirectory>
+            <outputDirectory>${docs.directory}</outputDirectory>
+            <sortByGroupIdAndArtifactId>true</sortByGroupIdAndArtifactId>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>docs-third-party</id>
+      <!--
+        Will create generated resources for docs/ folder.
+      -->
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>generate-docs-licenses</id>
+                <goals>
+                  <goal>aggregate-add-third-party</goal>
+                  <goal>aggregate-download-licenses</goal>
+                </goals>
+                <phase>generate-resources</phase>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>
