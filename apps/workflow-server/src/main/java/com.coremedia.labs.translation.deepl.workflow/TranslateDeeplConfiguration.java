@@ -1,10 +1,12 @@
 package com.coremedia.labs.translation.deepl.workflow;
 
+import com.coremedia.cap.content.ContentRepository;
 import com.coremedia.cap.translate.xliff.config.XliffExporterConfiguration;
 import com.coremedia.cap.translate.xliff.config.XliffImporterConfiguration;
 import com.coremedia.translate.item.TranslateItemConfiguration;
 import com.coremedia.translate.workflow.DefaultTranslationWorkflowDerivedContentsStrategy;
 import com.coremedia.translate.workflow.TranslationWorkflowDerivedContentsStrategy;
+import com.deepl.api.Translator;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -24,6 +26,11 @@ import java.util.Map;
 @PropertySource(value = "classpath:META-INF/coremedia/deepl-workflow.properties")
 @DefaultAnnotation(NonNull.class)
 public class TranslateDeeplConfiguration {
+
+  @Bean
+  DeeplTranslationService deeplTranslationService() {
+    return new DeeplTranslationService();
+  }
 
   /**
    * A strategy for extracting derived contents from the default translation.xml workflow definition.

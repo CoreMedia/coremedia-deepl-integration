@@ -3,12 +3,13 @@
 <Workflow>
   <Process name="TranslationDeepl"
            description="Automated Translation via Deepl"
-           startTask="ValidateParameters">
+           startTask="Prepare">
 
     <Rights>
       <Grant group="translation-manager-role"
              rights="create, read, write, start, suspend, resume, abort"/>
-      <Grant group="administratoren" rights="create, read, write,  start, suspend, resume, abort"/>
+      <Grant group="administratoren"
+             rights="create, read, write,  start, suspend, resume, abort"/>
       <Grant variable="targetSiteManagerGroup"
              rights="read, write"/>
     </Rights>
@@ -20,9 +21,10 @@
     </Variable>
 
     <Variable name="translationAction" type="String"/>
-    <Variable name="targetSiteId" type="String"/>
+    <AggregationVariable name="targetSiteId" type="String"/>
     <AggregationVariable name="targetSiteManagerGroup" type="Group"/>
     <Variable name="performer" type="User"/>
+    <Variable name="robotUser" type="User"/>
 
     <!-- list of contents or versions to be translated -->
     <AggregationVariable name="masterContentObjects" type="Resource"/>
@@ -68,14 +70,14 @@
       <Writes variable="placeholderPreparationStrategy"/>
     </Assignment>
 
-    <AutomatedTask name="ValidateParameters" successor="GetDerivedContents">
+    <AutomatedTask name="Prepare" successor="CheckIfDerivedContentsEmpty">
       <Action class="RegisterPendingProcess" userVariable="OWNER_"/>
       <Action class="com.coremedia.translate.workflow.ValidateTranslationParametersAction"
               masterContentObjectsVariable="masterContentObjects"
               targetSiteIdVariable="targetSiteId"/>
-    </AutomatedTask>
-
-    <AutomatedTask name="GetDerivedContents" successor="CheckIfDerivedContentsEmpty">
+      <Action class="com.coremedia.translate.workflow.ExtractTranslationWorkflowRobotUserAction"
+              resultVariable="robotUser"/>
+      <!-- Find and filter derived contents -->
       <Action class="com.coremedia.translate.workflow.GetDerivedContentsAction"
               masterContentObjectsVariable="masterContentObjects"
               derivedContentsVariable="derivedContents"
@@ -84,35 +86,34 @@
               targetSiteIdVariable="targetSiteId"/>
       <Action class="com.coremedia.translate.workflow.FilterDerivedContentsAction"
               masterContentObjectsVariable="masterContentObjects"
-              derivedContentsVariable="derivedContents"
-              ignoreContentStateIgnoreUpdates="true"
-      />
+              derivedContentsVariable="derivedContents"/>
     </AutomatedTask>
 
     <If name="CheckIfDerivedContentsEmpty">
       <Condition>
-        <Equal>
-          <IsEmpty variable="derivedContents"/>
-          <Boolean value="true"/>
-        </Equal>
+        <IsEmpty variable="derivedContents"/>
       </Condition>
       <Then successor="Finish"/>
-      <Else successor="GetTargetSiteManagerGroup"/>
+      <Else successor="AutoMerge"/>
     </If>
 
-    <AutomatedTask name="GetTargetSiteManagerGroup" successor="CreateTranslationTreeData">
-      <Action class="com.coremedia.translate.workflow.GetSiteManagerGroupAction"
-              siteVariable="targetSiteId"
-              siteManagerGroupVariable="targetSiteManagerGroup"/>
-    </AutomatedTask>
-
-    <AutomatedTask name="CreateTranslationTreeData" successor="SendToTranslationService">
+    <AutomatedTask name="AutoMerge" successor="SendToTranslationService">
       <Action class="com.coremedia.translate.workflow.CreateTranslationTreeDataAction"
               masterContentObjectsVariable="masterContentObjects"
               derivedContentsVariable="derivedContents"
               translationTreeDataVariable="translationTreeData"
-              premularConfigDataVariable="premularConfigData"
-      />
+              premularConfigDataVariable="premularConfigData"/>
+      <Action class="AssignVariable" resultVariable="performer"><Get variable="OWNER_"/></Action>
+      <Action class="com.coremedia.translate.workflow.GetCheckedInVersionsAction"
+              contentsVariable="derivedContents"
+              resultVariable="rollbackVersions"
+              performerVariable="performer"/>
+      <Action class="com.coremedia.translate.workflow.AutoMergeTranslationAction"
+              derivedContentsVariable="derivedContents"
+              masterContentObjectsVariable="masterContentObjects"
+              resultVariable="autoMergeConflicts"
+              performerVariable="robotUser"
+              checkInContent="true"/>
     </AutomatedTask>
 
     <AutomatedTask name="SendToTranslationService" successor="AssignSelf">
