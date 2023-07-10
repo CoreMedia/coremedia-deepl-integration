@@ -2,17 +2,19 @@ import { workflowLocalizationRegistry } from "@coremedia/studio-client.workflow-
 import { workflowPlugins } from "@coremedia/studio-client.workflow-plugin-models/WorkflowPluginRegistry";
 import Deepl_properties from "./Deepl_properties";
 
+const WORKFLOW_NAME:string = "TranslationDeepl";
+
 interface DeeplViewModel {
 
 }
 
 workflowPlugins._.addTranslationWorkflowPlugin<DeeplViewModel>({
   workflowType: "TRANSLATION",
-  workflowName: "TranslationDeepl",
+  workflowName: WORKFLOW_NAME,
   createWorkflowPerTargetSite: false,
 });
 
-workflowLocalizationRegistry._.addLocalization("TranslationGlobalLink", {
+workflowLocalizationRegistry._.addLocalization(WORKFLOW_NAME, {
   displayName: Deepl_properties.TranslationDeepl_displayName,
   description: Deepl_properties.TranslationDeepl_description,
 });
