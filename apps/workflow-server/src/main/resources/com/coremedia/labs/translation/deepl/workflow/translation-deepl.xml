@@ -116,7 +116,7 @@
     </AutomatedTask>
 
     <AutomatedTask name="SendToTranslationService" successor="AssignSelf">
-      <Action class="com.coremedia.labs.translation.deepl.workflow.SendToDeeplAction.java"
+      <Action class="com.coremedia.labs.translation.deepl.workflow.SendToDeeplAction"
               derivedContentsVariable="derivedContents"
               masterContentObjectsVariable="masterContentObjects"/>
     </AutomatedTask>
