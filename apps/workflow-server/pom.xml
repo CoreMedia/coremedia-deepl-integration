@@ -58,7 +58,10 @@
       <artifactId>xliff-core</artifactId>
     </dependency>
 
-
+    <dependency>
+      <groupId>com.coremedia.cms</groupId>
+      <artifactId>translate-workflow</artifactId>
+    </dependency>
 
 
     <!-- THIRD-PARTY dependencies -->
