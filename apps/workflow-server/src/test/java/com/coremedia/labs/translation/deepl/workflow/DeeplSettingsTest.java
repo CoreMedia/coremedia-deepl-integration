@@ -24,7 +24,7 @@ public class DeeplSettingsTest {
     Map<String, Object> values = Map.of(
             "url", apiBaseUrl,
             "apiKey", apiKey,
-            "maxRetries", maxRetries,
+            "maxRetries", "42",
             "timeout", timeout,
             "proxy", "https://" + proxyHost + ":" + proxyPort,
             "headers", headers

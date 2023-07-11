@@ -71,17 +71,31 @@ public class DeeplSettings {
 
     String apiKey = (String) values.get(KEY_API_KEY);
     String apiBaseUrl = (String) values.get(KEY_SERVER_URL);
-    int maxRetries = (int) values.getOrDefault(KEY_MAX_RETRIES, 5);
+
+
+    int maxRetries = 5;
+    Object maxRetriesValue = values.get(KEY_MAX_RETRIES);
+    if (maxRetriesValue instanceof String) {
+      maxRetries = Integer.parseInt((String) maxRetriesValue);
+    } else if (maxRetriesValue instanceof Integer) {
+      maxRetries = (int) maxRetriesValue;
+    }
+
+    Duration timeoutSeconds = Duration.ofSeconds(30L);
+    Object timeoutValue = values.get(KEY_TIMEOUT);
+    if (timeoutValue instanceof String) {
+      timeoutSeconds = Duration.ofSeconds(Long.parseLong((String) timeoutValue));
+    } else if (timeoutValue instanceof Long) {
+      timeoutSeconds = Duration.ofSeconds((Long) timeoutValue);
+    }
+
     String proxy = (String) values.get(KEY_PROXY);
     String headers = (String) values.get(KEY_HEADERS);
 
     result.setApiBaseUrl(apiBaseUrl);
     result.setApiKey(apiKey);
     result.setMaxRetries(maxRetries);
-
-    Duration timeoutSeconds = Duration.ofSeconds((Long) values.getOrDefault(KEY_TIMEOUT, 30L));
     result.setTimeout(timeoutSeconds);
-
     result.setHeaders(headers);
 
     if (StringUtils.isNotBlank(proxy)) {
