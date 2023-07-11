@@ -141,30 +141,22 @@ public class SendToDeeplAction extends DeeplAction {
   // --- Internal -------------------------------------------------------------
 
   private void initSession(Site site) {
-    Map<String, Object> deeplSettings = getDeeplSettingForSite(site);
-    String apiKey = String.valueOf(deeplSettings.get(ConfigProperties.KEY_API_KEY));
+    DeeplSettings deeplSettings = getDeeplSettingForSite(site);
 
+    String apiKey = deeplSettings.getApiKey();
     if (StringUtils.isBlank(apiKey)) {
       throw new IllegalStateException("No DeepL API key configured.");
     }
 
-    int maxRetries = (Integer) deeplSettings.get(ConfigProperties.KEY_MAX_RETRIES);
-    Duration timeoutSeconds = Duration.ofSeconds((Long) deeplSettings.get(ConfigProperties.KEY_TIMEOUT));
-    String proxyUrlSetting = String.valueOf(deeplSettings.get(ConfigProperties.KEY_PROXY));
-
     TranslatorOptions options = new TranslatorOptions();
-    options.setMaxRetries(maxRetries);
-    options.setTimeout(timeoutSeconds);
+    options.setMaxRetries(deeplSettings.getMaxRetries());
+    options.setTimeout(deeplSettings.getTimeout());
 
-    if (StringUtils.isNotBlank(proxyUrlSetting)) {
-      try {
-        URL proxyUrl = new URL(proxyUrlSetting);
-        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyUrl.getHost(), proxyUrl.getPort()));
-        options.setProxy(proxy);
-      } catch (MalformedURLException e) {
-        LOG.error("Cannot configure proxy.", e);
-      }
+    if (deeplSettings.getProxy() != null) {
+      options.setProxy(deeplSettings.getProxy());
     }
+
+    // TODO: Set headers if present
 
     Translator translator = new Translator(apiKey, options);
     translationService.setTranslator(translator);

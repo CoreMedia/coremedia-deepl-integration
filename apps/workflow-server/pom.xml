@@ -95,6 +95,11 @@
 
     <dependency>
       <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
     </dependency>
 
@@ -191,6 +196,14 @@
       <dependency>
         <groupId>com.coremedia.cms</groupId>
         <artifactId>middle-core-bom</artifactId>
+        <version>${cm.middle.core.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>com.coremedia.cms</groupId>
+        <artifactId>middle-thirdparty-bom</artifactId>
         <version>${cm.middle.core.version}</version>
         <type>pom</type>
         <scope>import</scope>

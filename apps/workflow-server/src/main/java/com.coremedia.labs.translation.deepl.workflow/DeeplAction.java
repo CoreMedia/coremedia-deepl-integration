@@ -7,8 +7,6 @@ import com.coremedia.cap.multisite.Site;
 import com.coremedia.cap.multisite.SitesService;
 import com.coremedia.cap.struct.Struct;
 import com.coremedia.cap.util.StructUtil;
-import com.coremedia.cap.workflow.Process;
-import com.coremedia.cap.workflow.Task;
 import com.coremedia.workflow.common.util.SpringAwareLongAction;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import org.slf4j.Logger;
@@ -16,14 +14,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static com.coremedia.labs.translation.deepl.workflow.ConfigProperties.KEY_DEEPL_ROOT;
+import static com.coremedia.labs.translation.deepl.workflow.DeeplSettings.KEY_DEEPL_ROOT;
 import static java.lang.invoke.MethodHandles.lookup;
 
 public abstract class DeeplAction extends SpringAwareLongAction {
@@ -95,24 +91,19 @@ public abstract class DeeplAction extends SpringAwareLongAction {
 
   // --- Settings handling ---
 
-  Map<String, Object> getDefaultDeeplSettings() {
-    return new HashMap<String,Object>(getSpringContext().getBean("deeplConfigurationProperties", Map.class));
+  DeeplSettings getDefaultDeeplSettings() {
+    HashMap<String, Object> defaultConfigurationProperties = new HashMap<String, Object>(getSpringContext().getBean("deeplConfigurationProperties", Map.class));
+    return DeeplSettings.fromValues(defaultConfigurationProperties);
   }
 
-  Map<String, Object> getDeeplSettingForSite(Site site) {
-    Map<String, Object> defaults = getDefaultDeeplSettings();
-    Map<String, Object> mergedSettings = new HashMap<>(defaults);
-
+  DeeplSettings getDeeplSettingForSite(Site site) {
+    DeeplSettings defaults = getDefaultDeeplSettings();
     Content siteRootDocument = site.getSiteRootDocument();
-    Map<String, Object> siteSpecificSetting = getDeeplSettingsForContent(siteRootDocument);
-    if (!siteSpecificSetting.isEmpty()) {
-      mergedSettings.putAll(siteSpecificSetting);
-    }
-
-    return Collections.unmodifiableMap(mergedSettings);
+    DeeplSettings siteSpecificSettings = getDeeplSettingsForContent(siteRootDocument);
+    return DeeplSettings.merge(defaults, siteSpecificSettings);
   }
 
-  Map<String, Object> getDeeplSettingsForContent(Content content) {
+  DeeplSettings getDeeplSettingsForContent(Content content) {
     Struct localSettings = getStruct(content, LOCAL_SETTINGS);
     Struct struct = StructUtil.mergeStructList(
             localSettings,
@@ -121,14 +112,17 @@ public abstract class DeeplAction extends SpringAwareLongAction {
                     .map(link -> getStruct(link, CMSETTINGS_SETTINGS))
                     .collect(Collectors.toList())
     );
+
+    Map<String, Object> structSettings = new HashMap<>();
+
     if (struct != null) {
       Object value = struct.get(KEY_DEEPL_ROOT);
       if (value instanceof Struct) {
-        return ((Struct) value).toNestedMaps();
+        structSettings = ((Struct) value).toNestedMaps();
       }
     }
 
-    return Collections.emptyMap();
+    return DeeplSettings.fromValues(structSettings);
   }
 
   @Nullable
