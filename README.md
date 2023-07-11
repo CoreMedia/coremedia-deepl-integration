@@ -7,6 +7,16 @@
 
 This open-source extension allows to integrate DeepL for translation workflows in CoreMedia Content Cloud.
 
+## Workflow Registration
+To register the workflow, add `translation-deepl.xml` to your workflow definitions in `global/management-tools/management-tools-image/src/main/image/coremedia/import-default-workflows`.
+
+Add `TranslationDeepl:/com/coremedia/labs/translation/deepl/workflow/translation-deepl.xml` to the variable `DEFAULT_WORKFLOWS`.
+
+In addition, you can also upload the workflow manually using the workflow cmd-line tool `cm upload`:
+```shell
+./cm upload -url http://content-management-server:40180/ior -f translation-deepl.xml
+```
+
 ## Configuration
 To configure the DeepL integration, create a settings document named `DeepL` in `/Settings/Options/Settings/Translation Services` and link it to the _Linked Settings_ of the master site's homepage.
 
