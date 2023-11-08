@@ -63,6 +63,11 @@
       <artifactId>translate-workflow</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.coremedia.cms</groupId>
+      <artifactId>collaboration-project-api</artifactId>
+    </dependency>
+
 
     <!-- THIRD-PARTY dependencies -->
     <dependency>
