@@ -4,7 +4,6 @@ import com.coremedia.cap.translate.xliff.config.XliffExporterConfiguration;
 import com.coremedia.cap.translate.xliff.config.XliffImporterConfiguration;
 import com.coremedia.collaboration.project.elastic.ProjectConfiguration;
 import com.coremedia.collaboration.todo.elastic.TodoConfiguration;
-import com.coremedia.notification.elastic.NotificationCollectionConfigurations;
 import com.coremedia.translate.item.TranslateItemConfiguration;
 import com.coremedia.translate.workflow.DefaultTranslationWorkflowDerivedContentsStrategy;
 import com.coremedia.translate.workflow.TranslationWorkflowDerivedContentsStrategy;
