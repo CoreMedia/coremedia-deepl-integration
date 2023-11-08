@@ -84,7 +84,7 @@ public class CreateProjectAction extends SpringAwareLongAction {
   public Object extractParameters(Task task) {
     Process process = task.getContainingProcess();
 
-    setProjectRepository(getSpringContext().getBean("projectRepository", ProjectRepository.class));
+    setProjectRepository(getSpringContext().getBean(ProjectRepository.class));
 
     List<Content> derivedContents = process.getLinks(derivedContentsVariable);
     List<ContentObject> masterContentObjects = process.getLinksAndVersions(masterContentObjectsVariable);

@@ -71,7 +71,6 @@
     <dependency>
       <groupId>com.coremedia.cms</groupId>
       <artifactId>project-elastic</artifactId>
-      <scope>runtime</scope>
     </dependency>
 
 

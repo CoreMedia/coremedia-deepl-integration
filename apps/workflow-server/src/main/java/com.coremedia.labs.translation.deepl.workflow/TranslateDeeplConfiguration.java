@@ -1,12 +1,11 @@
 package com.coremedia.labs.translation.deepl.workflow;
 
-import com.coremedia.cap.content.ContentRepository;
 import com.coremedia.cap.translate.xliff.config.XliffExporterConfiguration;
 import com.coremedia.cap.translate.xliff.config.XliffImporterConfiguration;
+import com.coremedia.collaboration.project.elastic.ProjectConfiguration;
 import com.coremedia.translate.item.TranslateItemConfiguration;
 import com.coremedia.translate.workflow.DefaultTranslationWorkflowDerivedContentsStrategy;
 import com.coremedia.translate.workflow.TranslationWorkflowDerivedContentsStrategy;
-import com.deepl.api.Translator;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -22,7 +21,8 @@ import java.util.Map;
 @Import({
         XliffImporterConfiguration.class,
         XliffExporterConfiguration.class,
-        TranslateItemConfiguration.class})
+        TranslateItemConfiguration.class,
+        ProjectConfiguration.class})
 @PropertySource(value = "classpath:META-INF/coremedia/deepl-workflow.properties")
 @DefaultAnnotation(NonNull.class)
 public class TranslateDeeplConfiguration {
