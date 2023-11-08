@@ -3,6 +3,7 @@ package com.coremedia.labs.translation.deepl.workflow;
 import com.coremedia.cap.translate.xliff.config.XliffExporterConfiguration;
 import com.coremedia.cap.translate.xliff.config.XliffImporterConfiguration;
 import com.coremedia.collaboration.project.elastic.ProjectConfiguration;
+import com.coremedia.collaboration.todo.elastic.TodoConfiguration;
 import com.coremedia.translate.item.TranslateItemConfiguration;
 import com.coremedia.translate.workflow.DefaultTranslationWorkflowDerivedContentsStrategy;
 import com.coremedia.translate.workflow.TranslationWorkflowDerivedContentsStrategy;
@@ -22,7 +23,8 @@ import java.util.Map;
         XliffImporterConfiguration.class,
         XliffExporterConfiguration.class,
         TranslateItemConfiguration.class,
-        ProjectConfiguration.class})
+        ProjectConfiguration.class,
+        TodoConfiguration.class})
 @PropertySource(value = "classpath:META-INF/coremedia/deepl-workflow.properties")
 @DefaultAnnotation(NonNull.class)
 public class TranslateDeeplConfiguration {

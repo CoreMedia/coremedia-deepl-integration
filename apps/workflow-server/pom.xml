@@ -73,6 +73,11 @@
       <artifactId>project-elastic</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.coremedia.cms</groupId>
+      <artifactId>todo-elastic</artifactId>
+    </dependency>
+
 
     <!-- THIRD-PARTY dependencies -->
     <dependency>
