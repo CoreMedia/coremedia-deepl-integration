@@ -2,11 +2,8 @@ package com.coremedia.labs.translation.deepl.workflow;
 
 import com.coremedia.cap.translate.xliff.config.XliffExporterConfiguration;
 import com.coremedia.cap.translate.xliff.config.XliffImporterConfiguration;
-import com.coremedia.collaboration.project.ProjectRepository;
 import com.coremedia.collaboration.project.elastic.ProjectConfiguration;
-import com.coremedia.collaboration.todo.TodoRepository;
 import com.coremedia.collaboration.todo.elastic.TodoConfiguration;
-import com.coremedia.notification.NotificationService;
 import com.coremedia.translate.item.TranslateItemConfiguration;
 import com.coremedia.translate.workflow.DefaultTranslationWorkflowDerivedContentsStrategy;
 import com.coremedia.translate.workflow.TranslationWorkflowDerivedContentsStrategy;
@@ -16,7 +13,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Configuration
@@ -54,9 +50,4 @@ public class TranslateDeeplConfiguration {
     return new HashMap<>();
   }
 
-  @Bean
-  public List<Object> projectBeans(ProjectRepository projectRepository, TodoRepository todoRepository, NotificationService notificationService) {
-    List<Object> beans = List.of(projectRepository, todoRepository, notificationService);
-    return beans;
-  }
 }
