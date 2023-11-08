@@ -12,8 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CreateProjectAction extends SpringAwareLongAction {
 
@@ -99,6 +102,7 @@ public class CreateProjectAction extends SpringAwareLongAction {
     Parameters parameters = (Parameters) params;
 
     Collection<Content> derivedContents = parameters.derivedContents;
+    Collection<ContentObject> masterContentObjects = parameters.masterContentObjects;
 
     if (derivedContents.isEmpty()) {
       return null;
@@ -108,8 +112,15 @@ public class CreateProjectAction extends SpringAwareLongAction {
     User user = parameters.performer;
     String projectName = "Workflow - " + parameters.subject;
     String projectDescription = parameters.comment;
+
     Project project = projectRepository.createProject(user, projectName, null, projectDescription, null);
-    project.setContents(derivedContents);
+    Collection<Content> projectContent = new HashSet<>(derivedContents);
+    List<Content> masterContent = masterContentObjects.stream()
+            .filter(ContentObject::isContent)
+            .map(Content.class::cast)
+            .collect(Collectors.toList());
+    projectContent.addAll(masterContent);
+    project.setContents(projectContent);
 
     return project;
   }
