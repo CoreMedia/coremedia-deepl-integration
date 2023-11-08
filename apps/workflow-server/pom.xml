@@ -78,6 +78,12 @@
       <artifactId>todo-elastic</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.coremedia.cms</groupId>
+      <artifactId>notification-elastic</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
 
     <!-- THIRD-PARTY dependencies -->
     <dependency>

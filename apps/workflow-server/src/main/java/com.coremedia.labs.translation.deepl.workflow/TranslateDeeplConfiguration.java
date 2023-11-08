@@ -4,16 +4,14 @@ import com.coremedia.cap.translate.xliff.config.XliffExporterConfiguration;
 import com.coremedia.cap.translate.xliff.config.XliffImporterConfiguration;
 import com.coremedia.collaboration.project.elastic.ProjectConfiguration;
 import com.coremedia.collaboration.todo.elastic.TodoConfiguration;
+import com.coremedia.notification.elastic.NotificationCollectionConfigurations;
 import com.coremedia.translate.item.TranslateItemConfiguration;
 import com.coremedia.translate.workflow.DefaultTranslationWorkflowDerivedContentsStrategy;
 import com.coremedia.translate.workflow.TranslationWorkflowDerivedContentsStrategy;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,6 +23,13 @@ import java.util.Map;
         TranslateItemConfiguration.class,
         ProjectConfiguration.class,
         TodoConfiguration.class})
+@ComponentScan(basePackages = "com.coremedia.elastic",
+        excludeFilters = {@ComponentScan.Filter(pattern= {
+                "com\\.coremedia\\.elastic\\..*\\.blobs\\..*",
+                "com\\.coremedia\\.elastic\\..*\\.counters\\..*",
+                "com\\.coremedia\\.elastic\\..*\\.tasks\\..*"
+        }, type = FilterType.REGEX)})
+@PropertySource(value = "classpath:/com/coremedia/notification/elastic/notification-elastic-defaults.properties")
 @PropertySource(value = "classpath:META-INF/coremedia/deepl-workflow.properties")
 @DefaultAnnotation(NonNull.class)
 public class TranslateDeeplConfiguration {
