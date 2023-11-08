@@ -195,7 +195,7 @@
               skipCleanInTranslation="true"/>
     </AutomatedTask>
 
-    <AutomatedTask name="Complete" successor="Finish">
+    <AutomatedTask name="Complete" successor="CheckIfCreateProject">
       <Action class="com.coremedia.translate.workflow.CompleteTranslationAction"
               derivedContentsVariable="derivedContents"
               masterContentObjectsVariable="masterContentObjects"
