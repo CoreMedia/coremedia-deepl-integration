@@ -63,6 +63,29 @@
       <artifactId>translate-workflow</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.coremedia.cms</groupId>
+      <artifactId>collaboration-project-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>com.coremedia.cms</groupId>
+      <artifactId>project-elastic</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.coremedia.cms</groupId>
+      <artifactId>todo-elastic</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.coremedia.cms</groupId>
+      <artifactId>notification-elastic</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
 
     <!-- THIRD-PARTY dependencies -->
     <dependency>

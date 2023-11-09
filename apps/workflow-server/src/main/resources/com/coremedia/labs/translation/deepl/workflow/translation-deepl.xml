@@ -19,6 +19,9 @@
     <Variable name="autoSelfAssigned" type="Boolean">
       <Boolean value="true"/>
     </Variable>
+    <Variable name="createProject" type="Boolean">
+      <Boolean value="false"/>
+    </Variable>
 
     <Variable name="translationAction" type="String"/>
     <AggregationVariable name="targetSiteId" type="String"/>
@@ -54,6 +57,7 @@
       <Writes variable="masterContentObjects"/>
       <Writes variable="targetSiteId"/>
       <Writes variable="placeholderPreparationStrategy"/>
+      <Writes variable="createProject"/>
     </InitialAssignment>
 
     <Assignment>
@@ -68,6 +72,7 @@
       <Writes variable="targetSiteId"/>
       <Writes variable="performer"/>
       <Writes variable="placeholderPreparationStrategy"/>
+      <Writes variable="createProject"/>
     </Assignment>
 
     <AutomatedTask name="Prepare" successor="CheckIfDerivedContentsEmpty">
@@ -186,19 +191,40 @@
               rollbackVersionsVariable="rollbackVersions"
               performerVariable="performer"/>
       <Action class="com.coremedia.translate.workflow.RollbackTranslationAction"
-              derivedContentsVariable="derivedContents"
-              masterContentObjectsVariable="masterContentObjects"
-              contentsVariable="createdContents"/>
+              contentsVariable="createdContents"
+              skipCleanInTranslation="true"/>
     </AutomatedTask>
 
-    <AutomatedTask name="Complete" successor="Finish">
+    <AutomatedTask name="Complete" successor="CheckIfCreateProject">
       <Action class="com.coremedia.translate.workflow.CompleteTranslationAction"
               derivedContentsVariable="derivedContents"
               masterContentObjectsVariable="masterContentObjects"
+              performerVariable="performer"
+              skipCleanInTranslation="true"/>
+    </AutomatedTask>
+
+    <If name="CheckIfCreateProject">
+      <Condition>
+        <Get variable="createProject"/>
+      </Condition>
+      <Then successor="CreateProject"/>
+      <Else successor="Finish"/>
+    </If>
+
+    <AutomatedTask name="CreateProject" successor="Finish">
+      <Action class="com.coremedia.labs.translation.deepl.workflow.CreateProjectAction"
+              derivedContentsVariable="derivedContents"
+              masterContentObjectsVariable="masterContentObjects"
+              subjectVariable="subject"
+              commentVariable="comment"
               performerVariable="performer"/>
     </AutomatedTask>
 
     <AutomatedTask name="Finish" final="true"/>
+
+    <FinalAction class="com.coremedia.translate.workflow.CleanInTranslationFinalAction"
+                 derivedContentsVariable="derivedContents"
+                 masterContentObjectsVariable="masterContentObjects"/>
 
     <!-- Finally, make sure finished processes are archived and appear in the list of finished workflows for
          participating users, i.e. for users for whom the RegisterPendingProcess action was called. -->

@@ -1,12 +1,20 @@
-import { workflowLocalizationRegistry } from "@coremedia/studio-client.workflow-plugin-models/WorkflowLocalizationRegistry";
-import { workflowPlugins } from "@coremedia/studio-client.workflow-plugin-models/WorkflowPluginRegistry";
+import {
+  workflowLocalizationRegistry
+} from "@coremedia/studio-client.workflow-plugin-models/WorkflowLocalizationRegistry";
+import {workflowPlugins} from "@coremedia/studio-client.workflow-plugin-models/WorkflowPluginRegistry";
 import Deepl_properties from "./Deepl_properties";
 import deeplWorkflowIcon from "./icons/deepl-workflow.svg";
+import {Binding, CheckField} from "@coremedia/studio-client.workflow-plugin-models/CustomWorkflowApi";
+import editorContext from "@coremedia/studio-client.main.editor-components/sdk/editorContext";
+import StudioConfigurationUtil
+  from "@coremedia/studio-client.ext.cap-base-components/util/config/StudioConfigurationUtil";
 
-const WORKFLOW_NAME:string = "TranslationDeepl";
+const WORKFLOW_NAME: string = "TranslationDeepl";
+const DEEPL_SETTINGS_BUNDLE: string = "Translation Services/DeepL";
+const DEEPL_STRUCT_NAME: string = "deepl";
 
 interface DeeplViewModel {
-
+  createProject?: boolean;
 }
 
 workflowPlugins._.addTranslationWorkflowPlugin<DeeplViewModel>({
@@ -30,7 +38,24 @@ workflowPlugins._.addTranslationWorkflowPlugin<DeeplViewModel>({
       ],
     },
   ],
+  startWorkflowFormExtension: {
 
+    computeViewModel(): DeeplViewModel {
+      return {createProject: getCreateProjectFlagDefault()};
+    },
+
+    saveViewModel(viewModel: DeeplViewModel): Record<string, any> {
+      return {createProject: viewModel.createProject};
+    },
+
+    fields: [
+      CheckField({
+        label: Deepl_properties.TranslationDeepl_field_createProject_label,
+        tooltip: Deepl_properties.TranslationDeepl_field_createProject_tooltip,
+        value: Binding("createProject")
+      })
+    ]
+  }
 });
 
 workflowLocalizationRegistry._.addLocalization(WORKFLOW_NAME, {
@@ -49,3 +74,14 @@ workflowLocalizationRegistry._.addIssuesLocalization({
     plural: Deepl_properties.SUCCESS_plural_text,
   }
 });
+
+function getCreateProjectFlagDefault(): boolean {
+  let preferredSite = editorContext._.getSitesService().getPreferredSite();
+  const deeplSettings = StudioConfigurationUtil.getConfiguration(DEEPL_SETTINGS_BUNDLE, DEEPL_STRUCT_NAME, preferredSite);
+  if (deeplSettings) {
+    return deeplSettings.get("createProject");
+  }
+  return undefined;
+}
+
+
