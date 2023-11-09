@@ -20,7 +20,7 @@
       <Boolean value="true"/>
     </Variable>
     <Variable name="createProject" type="Boolean">
-      <Boolean value="true"/>
+      <Boolean value="false"/>
     </Variable>
 
     <Variable name="translationAction" type="String"/>

@@ -2,6 +2,7 @@ package com.coremedia.labs.translation.deepl.workflow;
 
 import com.coremedia.cap.content.Content;
 import com.coremedia.cap.content.ContentObject;
+import com.coremedia.cap.content.Version;
 import com.coremedia.cap.user.User;
 import com.coremedia.cap.workflow.Process;
 import com.coremedia.cap.workflow.Task;
@@ -12,10 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.invoke.MethodHandles;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CreateProjectAction extends SpringAwareLongAction {
@@ -114,15 +112,27 @@ public class CreateProjectAction extends SpringAwareLongAction {
     String projectDescription = parameters.comment;
 
     Project project = projectRepository.createProject(user, projectName, null, projectDescription, null);
-    Collection<Content> projectContent = new HashSet<>(derivedContents);
-    List<Content> masterContent = masterContentObjects.stream()
-            .filter(ContentObject::isContent)
+    List<Content> projectContent = masterContentObjects.stream()
+            .map(contentObject -> {
+              if (contentObject.isContent()) {
+                return contentObject;
+              } else if (contentObject.isVersion()) {
+                Version v = (Version) contentObject;
+                return v.getContainingContent();
+              } else {
+                return null;
+              }
+            })
+            .filter(Objects::nonNull)
             .map(Content.class::cast)
             .collect(Collectors.toList());
-    projectContent.addAll(masterContent);
+    projectContent.addAll(derivedContents);
+
     project.setContents(projectContent);
 
-    return project;
+    projectRepository.saveProject(project);
+
+    return project.getId();
   }
 
   // Internal
