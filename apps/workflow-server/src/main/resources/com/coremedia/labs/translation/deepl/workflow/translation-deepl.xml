@@ -191,16 +191,16 @@
               rollbackVersionsVariable="rollbackVersions"
               performerVariable="performer"/>
       <Action class="com.coremedia.translate.workflow.RollbackTranslationAction"
-              contentsVariable="createdContents"
-              skipCleanInTranslation="true"/>
+              derivedContentsVariable="derivedContents"
+              masterContentObjectsVariable="masterContentObjects"
+              contentsVariable="createdContents"/>
     </AutomatedTask>
 
     <AutomatedTask name="Complete" successor="CheckIfCreateProject">
       <Action class="com.coremedia.translate.workflow.CompleteTranslationAction"
               derivedContentsVariable="derivedContents"
               masterContentObjectsVariable="masterContentObjects"
-              performerVariable="performer"
-              skipCleanInTranslation="true"/>
+              performerVariable="performer"/>
     </AutomatedTask>
 
     <If name="CheckIfCreateProject">
@@ -222,9 +222,9 @@
 
     <AutomatedTask name="Finish" final="true"/>
 
-    <FinalAction class="com.coremedia.translate.workflow.CleanInTranslationFinalAction"
+    <!--<FinalAction class="com.coremedia.translate.workflow.CleanInTranslationFinalAction"
                  derivedContentsVariable="derivedContents"
-                 masterContentObjectsVariable="masterContentObjects"/>
+                 masterContentObjectsVariable="masterContentObjects"/>-->
 
     <!-- Finally, make sure finished processes are archived and appear in the list of finished workflows for
          participating users, i.e. for users for whom the RegisterPendingProcess action was called. -->
