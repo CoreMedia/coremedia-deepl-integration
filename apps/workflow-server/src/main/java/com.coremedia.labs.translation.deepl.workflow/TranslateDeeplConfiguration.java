@@ -1,28 +1,28 @@
 package com.coremedia.labs.translation.deepl.workflow;
 
-import com.coremedia.cap.content.ContentRepository;
 import com.coremedia.cap.translate.xliff.config.XliffExporterConfiguration;
 import com.coremedia.cap.translate.xliff.config.XliffImporterConfiguration;
+import com.coremedia.collaboration.project.elastic.ProjectConfiguration;
+import com.coremedia.collaboration.todo.elastic.TodoConfiguration;
 import com.coremedia.translate.item.TranslateItemConfiguration;
 import com.coremedia.translate.workflow.DefaultTranslationWorkflowDerivedContentsStrategy;
 import com.coremedia.translate.workflow.TranslationWorkflowDerivedContentsStrategy;
-import com.deepl.api.Translator;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@ComponentScan(basePackages = {"com.coremedia.notification"})
 @Import({
         XliffImporterConfiguration.class,
         XliffExporterConfiguration.class,
-        TranslateItemConfiguration.class})
+        TranslateItemConfiguration.class,
+        ProjectConfiguration.class,
+        TodoConfiguration.class})
 @PropertySource(value = "classpath:META-INF/coremedia/deepl-workflow.properties")
 @DefaultAnnotation(NonNull.class)
 public class TranslateDeeplConfiguration {
@@ -49,4 +49,5 @@ public class TranslateDeeplConfiguration {
   public Map<String, Object> deeplConfigurationProperties() {
     return new HashMap<>();
   }
+
 }
