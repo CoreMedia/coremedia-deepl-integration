@@ -20,6 +20,11 @@
   <dependencies>
 
     <!-- EXTENSION dependencies -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>create-project-workflow-action</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
 
     <!-- COREMEDIA dependencies -->
@@ -61,27 +66,6 @@
     <dependency>
       <groupId>com.coremedia.cms</groupId>
       <artifactId>translate-workflow</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.coremedia.cms</groupId>
-      <artifactId>collaboration-project-api</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.coremedia.cms</groupId>
-      <artifactId>project-elastic</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.coremedia.cms</groupId>
-      <artifactId>todo-elastic</artifactId>
-    </dependency>
-
-    <dependency>
-      <groupId>com.coremedia.cms</groupId>
-      <artifactId>notification-elastic</artifactId>
-      <scope>runtime</scope>
     </dependency>
 
 
