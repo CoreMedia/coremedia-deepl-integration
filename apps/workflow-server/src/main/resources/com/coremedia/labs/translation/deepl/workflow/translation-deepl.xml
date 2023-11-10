@@ -212,7 +212,7 @@
     </If>
 
     <AutomatedTask name="CreateProject" successor="Finish">
-      <Action class="com.coremedia.labs.translation.deepl.workflow.CreateProjectAction"
+      <Action class="com.coremedia.blueprint.workflow.actions.CreateProjectAction"
               derivedContentsVariable="derivedContents"
               masterContentObjectsVariable="masterContentObjects"
               subjectVariable="subject"
