@@ -43,6 +43,7 @@ public class DeeplWorkflowValidationConfiguration {
     );
 
     List<WorkflowValidator> workflowValidators = new ArrayList<>();
+    workflowValidators.add(new DeeplSupportedLanguagesValidator());
     workflowValidators.addAll(translationStartValidators.getWorkflowValidators());
     WorkflowStartValidators deeplStartValidators = new WorkflowStartValidators(
             translationStartValidators.getWorkflowValidationPreparation(), workflowValidators

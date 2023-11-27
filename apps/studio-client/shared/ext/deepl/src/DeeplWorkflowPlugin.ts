@@ -8,6 +8,8 @@ import {Binding, CheckField} from "@coremedia/studio-client.workflow-plugin-mode
 import editorContext from "@coremedia/studio-client.main.editor-components/sdk/editorContext";
 import StudioConfigurationUtil
   from "@coremedia/studio-client.ext.cap-base-components/util/config/StudioConfigurationUtil";
+import additionalWorkflowIssues
+  from "@coremedia/studio-client.ext.workflow-components/components/validation/issues/additionalWorkflowIssues";
 
 const WORKFLOW_NAME: string = "TranslationDeepl";
 const DEEPL_SETTINGS_BUNDLE: string = "Translation Services/DeepL";
@@ -75,6 +77,9 @@ workflowLocalizationRegistry._.addIssuesLocalization({
   }
 });
 
+
+
+
 function getCreateProjectFlagDefault(): boolean {
   let preferredSite = editorContext._.getSitesService().getPreferredSite();
   const deeplSettings = StudioConfigurationUtil.getConfiguration(DEEPL_SETTINGS_BUNDLE, DEEPL_STRUCT_NAME, preferredSite);
@@ -84,4 +89,30 @@ function getCreateProjectFlagDefault(): boolean {
   return undefined;
 }
 
+// Add validation issue mappings for ui components in workflow dialog (see: WorkflowComponentValidationStateUtil.ts)
+const CONTENT_RELATED_ISSUES = [
+  {
+    wfIssuesCode: "unsupportedSourceLocales",
+    wfIssuesPriority: 2,
+  }
+];
+
+const SITES_RELATED_ISSUES = [
+  {
+    wfIssuesCode: "unsupportedTargetLocales",
+    wfIssuesPriority: 3,
+  }
+];
+
+addValidationStateMapping("contentRelatedIssueCodes", CONTENT_RELATED_ISSUES);
+addValidationStateMapping("sitesRelatedIssues", SITES_RELATED_ISSUES);
+
+function addValidationStateMapping(issueGroupName: string, issues: Array<{wfIssuesCode: string, wfIssuesPriority: number}>): void {
+  let wfIssues = additionalWorkflowIssues._.get(issueGroupName);
+  if (wfIssues) {
+    wfIssues.concat(issues);
+  } else {
+    additionalWorkflowIssues._.set(issueGroupName, issues);
+  }
+}
 
