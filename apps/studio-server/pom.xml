@@ -32,6 +32,20 @@
       <artifactId>cap-unified-api</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.coremedia.cms</groupId>
+      <artifactId>middle.coremedia-validation</artifactId>
+      <version>2310.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.coremedia.cms</groupId>
+      <artifactId>cap-multisite</artifactId>
+      <version>2310.1</version>
+    </dependency>
+
+
+
 
     <!-- THIRD-PARTY dependencies -->
     <dependency>
@@ -42,6 +56,11 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.deepl.api</groupId>
+      <artifactId>deepl-java</artifactId>
+      <version>1.4.0</version>
     </dependency>
 
 

@@ -5,6 +5,8 @@ import com.coremedia.rest.cap.workflow.validation.WorkflowValidator;
 import com.coremedia.rest.cap.workflow.validation.model.WorkflowValidationParameterModel;
 import com.coremedia.rest.validation.Issues;
 import com.coremedia.rest.validation.Severity;
+import com.deepl.api.*;
+
 
 import java.util.List;
 import java.util.Locale;
@@ -16,9 +18,21 @@ import java.util.stream.Stream;
 public class DeeplSupportedLanguagesValidator implements WorkflowValidator {
 
   // TODO: Fetch list of supported locales from Deepl API
-  private static final List<Locale> SUPPORTED_SOURCE_LOCALES = Stream.of("BG", "CS", "DA", "DE", "EL", "EN", "ES", "ET", "FI", "FR", "HU", "ID", "IT", "JA", "KO", "LT", "LV", "NB", "NL", "PL", "PT", "RO", "RU", "SK", "SL", "SV", "TR", "UK", "ZH").map(Locale::forLanguageTag).collect(Collectors.toList());
-  private static final List<Locale> SUPPORTED_TARGET_LOCALES = Stream.of("BG", "CS", "DA", "DE", "EL", "EN", "EN-GB", "EN-US", "ES", "ET", "FI", "FR", "HU", "ID", "IT", "JA", "KO", "LT", "LV", "NB", "NL", "PL", "PT", "PT-BR", "PT-PT", "RO", "RU", "SK", "SL", "SV", "TR", "UK", "ZH").map(Locale::forLanguageTag).collect(Collectors.toList());
+//  private static final List<Locale> SUPPORTED_SOURCE_LOCALES = Stream.of("BG", "CS", "DA", "DE", "EL", "EN", "ES", "ET", "FI", "FR", "HU", "ID", "IT", "JA", "KO", "LT", "LV", "NB", "NL", "PL", "PT", "RO", "RU", "SK", "SL", "SV", "TR", "UK", "ZH").map(Locale::forLanguageTag).collect(Collectors.toList());
+//  private static final List<Locale> SUPPORTED_TARGET_LOCALES = Stream.of("BG", "CS", "DA", "DE", "EL", "EN", "EN-GB", "EN-US", "ES", "ET", "FI", "FR", "HU", "ID", "IT", "JA", "KO", "LT", "LV", "NB", "NL", "PL", "PT", "PT-BR", "PT-PT", "RO", "RU", "SK", "SL", "SV", "TR", "UK", "ZH").map(Locale::forLanguageTag).collect(Collectors.toList());
+  private Translator translator;
 
+  public List<Locale> getSupportedSourceLocales() throws DeepLException, InterruptedException {
+    translator = new Translator("5d3ec6f4-e9b9-9985-d975-74a26541b7f1:fx");
+      List<String> supportedStrings = translator.getSourceLanguages().stream().map(Language::getCode).collect(Collectors.toList());
+      return supportedStrings.stream().map(Locale::new).collect(Collectors.toList());
+  }
+
+  public List<Locale> getSupportedTargetLocales() throws DeepLException, InterruptedException {
+    translator = new Translator("5d3ec6f4-e9b9-9985-d975-74a26541b7f1:fx");
+    List<String> supportedStrings = translator.getTargetLanguages().stream().map(Language::getCode).collect(Collectors.toList());
+    return supportedStrings.stream().map(Locale::new).collect(Collectors.toList());
+  }
 
   @Override
   public void addIssuesIfInvalid(Issues issues, WorkflowValidationParameterModel workflowValidationParameterModel, Runnable runnable) {
@@ -39,14 +53,22 @@ public class DeeplSupportedLanguagesValidator implements WorkflowValidator {
             .distinct()
             .collect(Collectors.toList());
 
-    // Validate source languages
-    if (!sourceLocales.isEmpty() && !isValidLocaleList(sourceLocales, SUPPORTED_SOURCE_LOCALES)) {
-      issues.addIssue(Severity.ERROR, null, "unsupportedSourceLocales");
+      // Validate source languages
+    try {
+      if (!sourceLocales.isEmpty() && !isValidLocaleList(sourceLocales, getSupportedSourceLocales())) {
+        issues.addIssue(Severity.ERROR, null, "unsupportedSourceLocales", getFirstInvalidLocale(sourceLocales, getSupportedSourceLocales()));
+      }
+    } catch (DeepLException | InterruptedException e) {
+      throw new RuntimeException(e);
     }
 
-    // Validate target languages
-    if (!targetLocales.isEmpty() && !isValidLocaleList(targetLocales, SUPPORTED_TARGET_LOCALES)) {
-      issues.addIssue(Severity.ERROR, null, "unsupportedTargetLocales");
+      // Validate target languages
+    try {
+      if (!targetLocales.isEmpty() && !isValidLocaleList(targetLocales, getSupportedTargetLocales())) {
+        issues.addIssue(Severity.ERROR, null, "unsupportedTargetLocales", getFirstInvalidLocale(targetLocales,getSupportedTargetLocales()));
+      }
+    } catch (DeepLException | InterruptedException e) {
+      throw new RuntimeException(e);
     }
 
   }
@@ -79,6 +101,14 @@ public class DeeplSupportedLanguagesValidator implements WorkflowValidator {
             .limit(1)
             .findFirst();
     return match.isPresent();
+  }
+  public Optional<Locale> getFirstInvalidLocale(List<Locale> localesToCheck, List<Locale> validLocales) {
+    for (Locale locale: localesToCheck) {
+      if (!isValidLocale(locale,validLocales)) {
+        return Optional.of(locale);
+      }
+    }
+      return null;
   }
 
 }
