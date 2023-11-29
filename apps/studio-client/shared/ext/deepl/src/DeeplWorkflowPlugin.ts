@@ -1,10 +1,10 @@
 import {
   workflowLocalizationRegistry
 } from "@coremedia/studio-client.workflow-plugin-models/WorkflowLocalizationRegistry";
-import {workflowPlugins} from "@coremedia/studio-client.workflow-plugin-models/WorkflowPluginRegistry";
+import { workflowPlugins } from "@coremedia/studio-client.workflow-plugin-models/WorkflowPluginRegistry";
 import Deepl_properties from "./Deepl_properties";
 import deeplWorkflowIcon from "./icons/deepl-workflow.svg";
-import {Binding, CheckField} from "@coremedia/studio-client.workflow-plugin-models/CustomWorkflowApi";
+import { Binding, CheckField } from "@coremedia/studio-client.workflow-plugin-models/CustomWorkflowApi";
 import editorContext from "@coremedia/studio-client.main.editor-components/sdk/editorContext";
 import StudioConfigurationUtil
   from "@coremedia/studio-client.ext.cap-base-components/util/config/StudioConfigurationUtil";
@@ -43,11 +43,11 @@ workflowPlugins._.addTranslationWorkflowPlugin<DeeplViewModel>({
   startWorkflowFormExtension: {
 
     computeViewModel(): DeeplViewModel {
-      return {createProject: getCreateProjectFlagDefault()};
+      return { createProject: getCreateProjectFlagDefault() };
     },
 
     saveViewModel(viewModel: DeeplViewModel): Record<string, any> {
-      return {createProject: viewModel.createProject};
+      return { createProject: viewModel.createProject };
     },
 
     fields: [
@@ -77,9 +77,6 @@ workflowLocalizationRegistry._.addIssuesLocalization({
   }
 });
 
-
-
-
 function getCreateProjectFlagDefault(): boolean {
   let preferredSite = editorContext._.getSitesService().getPreferredSite();
   const deeplSettings = StudioConfigurationUtil.getConfiguration(DEEPL_SETTINGS_BUNDLE, DEEPL_STRUCT_NAME, preferredSite);
@@ -107,7 +104,10 @@ const SITES_RELATED_ISSUES = [
 addValidationStateMapping("contentRelatedIssueCodes", CONTENT_RELATED_ISSUES);
 addValidationStateMapping("sitesRelatedIssues", SITES_RELATED_ISSUES);
 
-function addValidationStateMapping(issueGroupName: string, issues: Array<{wfIssuesCode: string, wfIssuesPriority: number}>): void {
+function addValidationStateMapping(issueGroupName: string, issues: Array<{
+  wfIssuesCode: string,
+  wfIssuesPriority: number
+}>): void {
   let wfIssues = additionalWorkflowIssues._.get(issueGroupName);
   if (wfIssues) {
     wfIssues.concat(issues);
