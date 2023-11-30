@@ -71,6 +71,15 @@ workflowLocalizationRegistry._.addLocalization(WORKFLOW_NAME, {
 });
 
 workflowLocalizationRegistry._.addIssuesLocalization({
+  unsupportedSourceLocales: {
+    singular: Deepl_properties.ERROR_singular_text,
+    plural:Deepl_properties.ERROR_plural_text,
+  },
+  unsupportedTargetLocales: {
+    singular: Deepl_properties.ERROR_target_singular_text,
+    plural:Deepl_properties.ERROR_target_plural_text,
+  },
+
   SUCCESS: {
     singular: Deepl_properties.SUCCESS_singular_text,
     plural: Deepl_properties.SUCCESS_plural_text,
@@ -91,6 +100,7 @@ const CONTENT_RELATED_ISSUES = [
   {
     wfIssuesCode: "unsupportedSourceLocales",
     wfIssuesPriority: 2,
+    text: "Site is not available for Translation",
   }
 ];
 
@@ -98,6 +108,7 @@ const SITES_RELATED_ISSUES = [
   {
     wfIssuesCode: "unsupportedTargetLocales",
     wfIssuesPriority: 3,
+    text: "Site is not available for Translation",
   }
 ];
 

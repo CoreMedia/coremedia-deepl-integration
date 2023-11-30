@@ -1,6 +1,7 @@
 package com.coremedia.labs.translation.deepl.studio.validation;
 
 
+import com.coremedia.cap.multisite.SitesService;
 import com.deepl.api.DeepLException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +20,7 @@ class DeeplSupportedLanguagesValidatorTest {
 
   @BeforeEach
   void setUp() {
-    testling = new DeeplSupportedLanguagesValidator();
+    testling = new DeeplSupportedLanguagesValidator(sitesService);
   }
 
   @Test
