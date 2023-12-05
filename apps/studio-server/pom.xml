@@ -20,6 +20,11 @@
   <dependencies>
 
     <!-- EXTENSION dependencies -->
+    <dependency>
+    <groupId>com.github.spotbugs</groupId>
+    <artifactId>spotbugs-annotations</artifactId>
+    <scope>provided</scope>
+    </dependency>
 
 
     <!-- COREMEDIA dependencies -->
@@ -32,6 +37,11 @@
       <groupId>com.coremedia.cms</groupId>
       <artifactId>cap-unified-api</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.coremedia.cms</groupId>
+      <artifactId>cap-unified-api-util</artifactId>
+    </dependency>
+
 
     <dependency>
       <groupId>com.coremedia.cms</groupId>
@@ -67,7 +77,6 @@
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
-
   </dependencies>
 
 </project>

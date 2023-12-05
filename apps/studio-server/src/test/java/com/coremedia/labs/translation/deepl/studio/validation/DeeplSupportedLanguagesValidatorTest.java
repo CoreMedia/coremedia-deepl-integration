@@ -17,6 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class DeeplSupportedLanguagesValidatorTest {
 
   private DeeplSupportedLanguagesValidator testling;
+  private SitesService sitesService;
 
   @BeforeEach
   void setUp() {
