@@ -76,8 +76,8 @@ workflowLocalizationRegistry._.addIssuesLocalization({
     plural:Deepl_properties.ERROR_plural_text,
   },
   unsupportedTargetLocales: {
-    singular: Deepl_properties.ERROR_target_singular_text,
-    plural:Deepl_properties.ERROR_target_plural_text,
+    singular: Deepl_properties.WARN_target_singular_text,
+    plural:Deepl_properties.WARN_target_plural_text,
   },
 
   SUCCESS: {

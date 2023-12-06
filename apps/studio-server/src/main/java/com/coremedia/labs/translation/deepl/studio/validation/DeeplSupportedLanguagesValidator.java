@@ -79,11 +79,10 @@ public class DeeplSupportedLanguagesValidator implements WorkflowValidator {
     } catch (DeepLException | InterruptedException e) {
       throw new RuntimeException(e);
     }
-
     // Validate target languages
     try {
       if (!targetLocales.isEmpty() && !isValidLocaleList(targetLocales, getSupportedTargetLocales())) {
-        issues.addIssue(Severity.ERROR, null, "unsupportedTargetLocales", getFirstInvalidLocale(targetLocales, getSupportedTargetLocales()));
+        issues.addIssue(Severity.WARN, null, "unsupportedTargetLocales", getFirstInvalidLocale(targetLocales, getSupportedTargetLocales()));
       }
     } catch (DeepLException | InterruptedException e) {
       throw new RuntimeException(e);
