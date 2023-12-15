@@ -228,8 +228,10 @@ public class DeeplTranslationService {
     target.setEquivText(source.getEquivText());
     target.getOtherAttributes().putAll(source.getOtherAttributes());
     for (Object sourceEntry : source.getContent()) {
-      if (sourceEntry instanceof String) {
+      if (sourceEntry instanceof String || sourceEntry instanceof G) {
         target.getContent().add(sourceEntry);
+      } else {
+        LOG.warn("Unable to handle: {}", sourceEntry);
       }
     }
     return target;
