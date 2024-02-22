@@ -1,2 +1,1 @@
-org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
 com.coremedia.labs.translation.deepl.studio.validation.DeeplWorkflowValidationConfiguration
