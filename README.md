@@ -1,11 +1,17 @@
 ![CoreMedia Labs Logo](https://documentation.coremedia.com/badges/banner_coremedia_labs_wide.png "CoreMedia Labs Logo Title Text")
 
-![CoreMedia Content Cloud Version](https://img.shields.io/static/v1?message=2304&label=CoreMedia%20Content%20Cloud&style=for-the-badge&color=672779)
+![CoreMedia Content Cloud Version](https://img.shields.io/static/v1?message=2406&label=CoreMedia%20Content%20Cloud&style=for-the-badge&color=672779)
 ![DeepL API](https://img.shields.io/static/v1?message=v1.3.0&label=DeepL%20Java%20Library&style=for-the-badge&color=green)
 
 # CoreMedia DeepL Integration
 
 This open-source extension allows to integrate DeepL for translation workflows in CoreMedia Content Cloud.
+
+
+## Extension Dependencies
+This extension has a dependency to the [coremedia-additional-workflows](https://github.com/CoreMedia/coremedia-additional-workflows) extension for the "create project" option.
+Please make sure to also add the `coremedia-additional-workflows` extension to your workspace.
+
 
 ## Workflow Registration
 To register the workflow, add `translation-deepl.xml` to your workflow definitions in `global/management-tools/management-tools-image/src/main/image/coremedia/import-default-workflows`.
