@@ -101,6 +101,9 @@ public class DeeplTranslationService {
         File file = (File) o;
         String sourceLanguage = Locale.forLanguageTag(file.getSourceLanguage()).getLanguage();
         String targetLanguage = Locale.forLanguageTag(file.getTargetLanguage()).getLanguage();
+        // FI-POC: DeepL only accepts ISO formated locales as target language, e.g. "en-US" but not "en"
+        if (targetLanguage.equals("en")) targetLanguage += "-US";
+        //FI-POC: END
         for (Object groupOrTransUnitOrBinUnit : file.getBody().getGroupOrTransUnitOrBinUnit()) {
           if (groupOrTransUnitOrBinUnit instanceof Group) {
             handleGroup((Group) groupOrTransUnitOrBinUnit, sourceLanguage, targetLanguage);
