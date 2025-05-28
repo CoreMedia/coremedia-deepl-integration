@@ -11,5 +11,5 @@ ResourceBundleUtil.override(Deepl_properties, {
   ERROR_singular_text: "Ein Contentitem kann nicht übersetzt werden, weil die Sprache von Deepl nicht unterstützt wird.",
   ERROR_plural_text: "Verschiedene Contentitems können nicht übersetzt werden, weil die Sprache von Deepl nicht unterstützt wird.",
   WARN_target_singular_text: "Deaktivieren Sie das Kontrollkästchen für die nicht unterstützte Übersetzung. Siehe DeepL Dokumentation für weitere Informationen.",
-  WARN_target_plural_text:"Deaktivieren Sie die Kontrollkästchen für die nicht unterstützten Übersetzungen. Siehe DeepL Dokumentation für weitere Informationen.",
+  WARN_target_plural_text: "Deaktivieren Sie die Kontrollkästchen für die nicht unterstützten Übersetzungen. Siehe DeepL Dokumentation für weitere Informationen.",
 });

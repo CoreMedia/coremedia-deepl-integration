@@ -14,7 +14,7 @@ interface Deepl_properties {
   WARN_target_plural_text: string;
 }
 
-const Deepl_properties : Deepl_properties = {
+const Deepl_properties: Deepl_properties = {
   TranslationDeepl_description: "Translation with DeepL",
   TranslationDeepl_displayName: "Translation with DeepL",
   TranslationDeepl_field_createProject_label: "Create Project",
@@ -26,7 +26,7 @@ const Deepl_properties : Deepl_properties = {
   ERROR_singular_text: "A Contentitem can't be translated because the language is not supported by Deepl.",
   ERROR_plural_text: "Various Contentitems can't be translated because the language is not supported by Deepl.",
   WARN_target_singular_text: "Untick unsupported Site to translate to. See DeepL Documentation for more infos.",
-  WARN_target_plural_text:"Untick unsupported Sites to translate to. See DeepL Documentation for more infos.",
-}
+  WARN_target_plural_text: "Untick unsupported Sites to translate to. See DeepL Documentation for more infos.",
+};
 
 export default Deepl_properties;

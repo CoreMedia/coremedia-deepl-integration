@@ -10,5 +10,5 @@ ResourceBundleUtil.override(Deepl_properties, {
   ERROR_singular_text: "その言語は Deepl でサポートされていないため、Contentitem を翻訳できません。",
   ERROR_plural_text: "Deepl でサポートされていない言語のため、さまざまなコンテンツ項目を翻訳できません。",
   WARN_target_singular_text: "翻訳するサポートされていないサイトのチェックを外します。詳細は、\"DeepL ドキュメント\" を参照してください",
-  WARN_target_plural_text:"サポートされていない翻訳のチェックボックスをオフにします。詳細は、DeepL のドキュメントを参照してください。",
+  WARN_target_plural_text: "サポートされていない翻訳のチェックボックスをオフにします。詳細は、DeepL のドキュメントを参照してください。",
 });
