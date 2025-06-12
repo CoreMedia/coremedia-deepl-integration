@@ -12,6 +12,7 @@ import additionalWorkflowIssues
   from "@coremedia/studio-client.ext.workflow-components/components/validation/issues/additionalWorkflowIssues";
 
 const WORKFLOW_NAME: string = "TranslationDeepl";
+const WORKFLOW_NAME_DIRECT: string = "TranslationDeeplDirect";
 const DEEPL_SETTINGS_BUNDLE: string = "Translation Services/DeepL";
 const DEEPL_STRUCT_NAME: string = "deepl";
 
@@ -60,6 +61,33 @@ workflowPlugins._.addTranslationWorkflowPlugin<DeeplViewModel>({
   }
 });
 
+
+workflowPlugins._.addTranslationWorkflowPlugin<DeeplViewModel>({
+  workflowType: "TRANSLATION",
+  workflowName: WORKFLOW_NAME_DIRECT,
+  createWorkflowPerTargetSite: false,
+
+  startWorkflowFormExtension: {
+
+    computeViewModel(): DeeplViewModel {
+      return { createProject: getCreateProjectFlagDefault() };
+    },
+
+    saveViewModel(viewModel: DeeplViewModel): Record<string, any> {
+      return { createProject: viewModel.createProject };
+    },
+
+    fields: [
+      CheckField({
+        label: Deepl_properties.TranslationDeepl_field_createProject_label,
+        tooltip: Deepl_properties.TranslationDeepl_field_createProject_tooltip,
+        value: Binding("createProject")
+      })
+    ]
+  }
+});
+
+
 workflowLocalizationRegistry._.addLocalization(WORKFLOW_NAME, {
   displayName: Deepl_properties.TranslationDeepl_displayName,
   description: Deepl_properties.TranslationDeepl_description,
@@ -68,6 +96,12 @@ workflowLocalizationRegistry._.addLocalization(WORKFLOW_NAME, {
     finishTranslation: Deepl_properties.TranslationDeepl_state_finishTranslation_displayName,
     rollbackTranslation: Deepl_properties.TranslationDeepl_state_rollbackTranslation_displayName
   }
+});
+
+workflowLocalizationRegistry._.addLocalization(WORKFLOW_NAME_DIRECT, {
+  displayName: Deepl_properties.TranslationDeeplDirect_displayName,
+  description: Deepl_properties.TranslationDeeplDirect_description,
+  svgIcon: deeplWorkflowIcon,
 });
 
 workflowLocalizationRegistry._.addIssuesLocalization({
