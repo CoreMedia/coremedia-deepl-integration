@@ -13,7 +13,7 @@
 
   <properties>
     <coremedia.project.extension.for>workflow-server</coremedia.project.extension.for>
-    <deepl.version>1.3.0</deepl.version>
+    <deepl.version>1.10.0</deepl.version>
     <cm.middle.core.version>2412.0.0</cm.middle.core.version>
   </properties>
 
