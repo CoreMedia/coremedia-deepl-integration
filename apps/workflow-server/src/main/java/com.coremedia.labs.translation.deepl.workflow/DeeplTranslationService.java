@@ -24,6 +24,7 @@ import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
+
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
@@ -39,12 +40,12 @@ public class DeeplTranslationService {
   public static final String SOURCE_PREFIX = "<source xmlns=\"urn:oasis:names:tc:xliff:document:1.2\">";
   public static final String SOURCE_SUFFIX = "</source>";
   private Translator translator;
-
+  private final DeepLConfigurationProperties deepLConfigurationProperties;
 
   private static final Logger LOG = getLogger(lookup().lookupClass());
 
-
-  public DeeplTranslationService() {
+  public DeeplTranslationService(DeepLConfigurationProperties deepLConfigurationProperties) {
+    this.deepLConfigurationProperties = deepLConfigurationProperties;
   }
 
   public void setTranslator(Translator translator) {
@@ -64,7 +65,7 @@ public class DeeplTranslationService {
       LOG.debug("Translating from {} to {}: {}", sourceLanguage, targetLanguage, toTranslate);
       TextResult textResult = translator.translateText(toTranslate, sourceLanguage, targetLanguage);
       return Optional.ofNullable(textResult.getText());
-    } catch (DeepLException|InterruptedException e) {
+    } catch (DeepLException | InterruptedException e) {
       LOG.error("Unable to translate.", e);
     }
 
@@ -97,13 +98,11 @@ public class DeeplTranslationService {
    */
   public void translateXliff(Xliff xliff) {
     for (Object o : xliff.getAnyAndFile()) {
-      if (o instanceof File) {
-        File file = (File) o;
+      if (o instanceof File file) {
+        // DeepL (currently) only supports the language part of a locale for sourceLanguage
         String sourceLanguage = Locale.forLanguageTag(file.getSourceLanguage()).getLanguage();
-        String targetLanguage = Locale.forLanguageTag(file.getTargetLanguage()).getLanguage();
-        // FI-POC: DeepL only accepts ISO formated locales as target language, e.g. "en-US" but not "en"
-        if (targetLanguage.equals("en")) targetLanguage += "-US";
-        //FI-POC: END
+        // determine target language to use for DeepL
+        String targetLanguage = getDeepLTargetLanguage(Locale.forLanguageTag(file.getTargetLanguage()));
         for (Object groupOrTransUnitOrBinUnit : file.getBody().getGroupOrTransUnitOrBinUnit()) {
           if (groupOrTransUnitOrBinUnit instanceof Group) {
             handleGroup((Group) groupOrTransUnitOrBinUnit, sourceLanguage, targetLanguage);
@@ -113,6 +112,22 @@ public class DeeplTranslationService {
         }
       }
     }
+  }
+
+  /**
+   * Return the targetLanguage to use for DeepL.
+   * See <a href="https://developers.deepl.com/docs/getting-started/supported-languages">DeepL Supported Languages</a>.
+   *
+   * @param targetLocale Target locale
+   * @return targetLanguage to use for DeepL
+   */
+  private String getDeepLTargetLanguage(Locale targetLocale) {
+    String languageTag = targetLocale.toLanguageTag();
+    // strip the country unless country variant is explicitly supported/required by DeepL
+    if (deepLConfigurationProperties.getPassAsIsTargetLocales().contains(languageTag)) {
+      return languageTag;
+    }
+    return targetLocale.getLanguage();
   }
 
   private void handleGroup(Group group, String sourceLanguage, String targetLanguage) {

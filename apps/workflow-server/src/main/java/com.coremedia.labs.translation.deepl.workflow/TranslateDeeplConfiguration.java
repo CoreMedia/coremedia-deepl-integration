@@ -9,6 +9,7 @@ import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
@@ -23,12 +24,15 @@ import java.util.Map;
         TranslateItemConfiguration.class
 })
 @PropertySource(value = "classpath:META-INF/coremedia/deepl-workflow.properties")
+@EnableConfigurationProperties({
+        DeepLConfigurationProperties.class,
+})
 @DefaultAnnotation(NonNull.class)
 public class TranslateDeeplConfiguration {
 
   @Bean
-  DeeplTranslationService deeplTranslationService() {
-    return new DeeplTranslationService();
+  DeeplTranslationService deeplTranslationService(DeepLConfigurationProperties deepLConfigurationProperties) {
+    return new DeeplTranslationService(deepLConfigurationProperties);
   }
 
   /**
