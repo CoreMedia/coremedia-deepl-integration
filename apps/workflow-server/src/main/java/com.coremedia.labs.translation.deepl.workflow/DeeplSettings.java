@@ -25,12 +25,6 @@ public class DeeplSettings {
   public static final String KEY_DEEPL_ROOT = "deepl";
 
   /**
-   * Base URL for DeepL API, may be overridden for testing purposes.
-   * By default, the correct DeepL API (Free or Pro) is automatically selected.
-   */
-  public static final String KEY_SERVER_URL = "url";
-
-  /**
    * API Key.
    */
   public static final String KEY_API_KEY = "apiKey";
@@ -51,17 +45,10 @@ public class DeeplSettings {
    */
   public static final String KEY_PROXY = "proxy";
 
-  /**
-   * Additional HTTP headers to attach to all requests.
-   */
-  public static final String KEY_HEADERS = "headers";
-
-  private String apiBaseUrl;
   private String apiKey;
   private int maxRetries;
   private Duration timeout;
   private Proxy proxy;
-  private String headers;
 
   private DeeplSettings() {
   }
@@ -70,8 +57,6 @@ public class DeeplSettings {
     DeeplSettings result = new DeeplSettings();
 
     String apiKey = (String) values.get(KEY_API_KEY);
-    String apiBaseUrl = (String) values.get(KEY_SERVER_URL);
-
 
     int maxRetries = 5;
     Object maxRetriesValue = values.get(KEY_MAX_RETRIES);
@@ -90,13 +75,10 @@ public class DeeplSettings {
     }
 
     String proxy = (String) values.get(KEY_PROXY);
-    String headers = (String) values.get(KEY_HEADERS);
 
-    result.setApiBaseUrl(apiBaseUrl);
     result.setApiKey(apiKey);
     result.setMaxRetries(maxRetries);
     result.setTimeout(timeoutSeconds);
-    result.setHeaders(headers);
 
     if (StringUtils.isNotBlank(proxy)) {
       try {
@@ -115,14 +97,6 @@ public class DeeplSettings {
     BeanUtils.copyProperties(base, result);
     BeanUtils.copyProperties(overrides, result);
     return result;
-  }
-
-  public String getApiBaseUrl() {
-    return apiBaseUrl;
-  }
-
-  public void setApiBaseUrl(String apiBaseUrl) {
-    this.apiBaseUrl = apiBaseUrl;
   }
 
   public String getApiKey() {
@@ -157,11 +131,4 @@ public class DeeplSettings {
     this.proxy = proxy;
   }
 
-  public String getHeaders() {
-    return headers;
-  }
-
-  public void setHeaders(String headers) {
-    this.headers = headers;
-  }
 }
