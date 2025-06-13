@@ -4,39 +4,24 @@ import com.coremedia.cap.content.Content;
 import com.coremedia.cap.content.ContentObject;
 import com.coremedia.cap.multisite.ContentObjectSiteAspect;
 import com.coremedia.cap.multisite.Site;
-import com.coremedia.cap.multisite.SitesService;
-import com.coremedia.cap.struct.Struct;
 import com.coremedia.cap.translate.xliff.XliffExportOptions;
 import com.coremedia.cap.translate.xliff.XliffExporter;
 import com.coremedia.cap.translate.xliff.XliffImporter;
-import com.coremedia.cap.util.StructUtil;
 import com.coremedia.cap.workflow.Process;
 import com.coremedia.cap.workflow.Task;
 import com.coremedia.translate.item.ContentToTranslateItemTransformer;
 import com.coremedia.translate.item.TranslateItem;
 import com.coremedia.translate.xliff.core.jaxb.Xliff;
-import com.coremedia.workflow.common.util.SpringAwareLongAction;
-import com.deepl.api.Translator;
-import com.deepl.api.TranslatorOptions;
-import com.google.common.annotations.VisibleForTesting;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import com.deepl.api.DeepLClient;
+import com.deepl.api.DeepLClientOptions;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
 
-import java.net.InetSocketAddress;
-import java.net.MalformedURLException;
-import java.net.Proxy;
-import java.net.URL;
-import java.time.Duration;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -46,10 +31,6 @@ import static java.lang.invoke.MethodHandles.lookup;
 public class SendToDeeplAction extends DeeplAction {
 
   private static final Logger LOG = LoggerFactory.getLogger(lookup().lookupClass());
-
-  private static final String LOCAL_SETTINGS = "localSettings";
-  private static final String LINKED_SETTINGS = "linkedSettings";
-  private static final String CMSETTINGS_SETTINGS = "settings";
 
   private XliffExporter exporter;
   private XliffImporter importer;
@@ -148,7 +129,7 @@ public class SendToDeeplAction extends DeeplAction {
       throw new IllegalStateException("No DeepL API key configured.");
     }
 
-    TranslatorOptions options = new TranslatorOptions();
+    DeepLClientOptions options = new DeepLClientOptions();
     options.setMaxRetries(deeplSettings.getMaxRetries());
     options.setTimeout(deeplSettings.getTimeout());
 
@@ -158,8 +139,8 @@ public class SendToDeeplAction extends DeeplAction {
 
     // TODO: Set headers if present
 
-    Translator translator = new Translator(apiKey, options);
-    translationService.setTranslator(translator);
+    DeepLClient deepLClient = new DeepLClient(apiKey, options);
+    translationService.setDeepLClient(deepLClient);
   }
 
 }

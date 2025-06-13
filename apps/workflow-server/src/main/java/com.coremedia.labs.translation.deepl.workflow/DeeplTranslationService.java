@@ -1,29 +1,17 @@
 package com.coremedia.labs.translation.deepl.workflow;
 
 import com.coremedia.cap.struct.Struct;
-import com.coremedia.translate.xliff.core.jaxb.AttrTypeYesNo;
-import com.coremedia.translate.xliff.core.jaxb.File;
-import com.coremedia.translate.xliff.core.jaxb.G;
-import com.coremedia.translate.xliff.core.jaxb.Group;
-import com.coremedia.translate.xliff.core.jaxb.Ph;
-import com.coremedia.translate.xliff.core.jaxb.Source;
-import com.coremedia.translate.xliff.core.jaxb.Target;
-import com.coremedia.translate.xliff.core.jaxb.TransUnit;
-import com.coremedia.translate.xliff.core.jaxb.X;
-import com.coremedia.translate.xliff.core.jaxb.Xliff;
+import com.coremedia.translate.xliff.core.jaxb.*;
+import com.deepl.api.DeepLClient;
 import com.deepl.api.DeepLException;
 import com.deepl.api.TextResult;
-import com.deepl.api.Translator;
 import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.xml.sax.InputSource;
-
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
-import jakarta.xml.bind.Unmarshaller;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -39,7 +27,7 @@ public class DeeplTranslationService {
   public static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
   public static final String SOURCE_PREFIX = "<source xmlns=\"urn:oasis:names:tc:xliff:document:1.2\">";
   public static final String SOURCE_SUFFIX = "</source>";
-  private Translator translator;
+  private DeepLClient deepLClient;
   private final DeepLConfigurationProperties deepLConfigurationProperties;
 
   private static final Logger LOG = getLogger(lookup().lookupClass());
@@ -48,8 +36,8 @@ public class DeeplTranslationService {
     this.deepLConfigurationProperties = deepLConfigurationProperties;
   }
 
-  public void setTranslator(Translator translator) {
-    this.translator = translator;
+  public void setDeepLClient(DeepLClient deepLClient) {
+    this.deepLClient = deepLClient;
   }
 
   /**
@@ -63,7 +51,7 @@ public class DeeplTranslationService {
   public Optional<String> translate(String toTranslate, String sourceLanguage, String targetLanguage) {
     try {
       LOG.debug("Translating from {} to {}: {}", sourceLanguage, targetLanguage, toTranslate);
-      TextResult textResult = translator.translateText(toTranslate, sourceLanguage, targetLanguage);
+      TextResult textResult = deepLClient.translateText(toTranslate, sourceLanguage, targetLanguage);
       return Optional.ofNullable(textResult.getText());
     } catch (DeepLException | InterruptedException e) {
       LOG.error("Unable to translate.", e);
@@ -71,24 +59,6 @@ public class DeeplTranslationService {
 
     // Unable to translate -> return input text
     return Optional.of(toTranslate);
-  }
-
-  /**
-   * Translate a string that is a xliff
-   *
-   * @param xliff the xliff as string
-   * @return a string if the translation succeed
-   */
-
-  public Optional<String> translateXliff(String xliff) {
-    Xliff doc = parseXliff(xliff);
-    translateXliff(doc);
-    try {
-      return Optional.of(convertToString(doc));
-    } catch (Exception e) {
-      LOG.warn("Ignoring exception.", e);
-    }
-    return Optional.empty();
   }
 
   /**
@@ -268,18 +238,6 @@ public class DeeplTranslationService {
     }
   }
 
-  private static Xliff parseXliff(String untranslatedXliff) {
-    try {
-      JAXBContext context;
-      context = JAXBContext.newInstance("com.coremedia.translate.xliff.core.jaxb");
-      Unmarshaller m = context.createUnmarshaller();
-      InputSource src = new InputSource(new StringReader(untranslatedXliff));
-      return (Xliff) m.unmarshal(src);
-    } catch (JAXBException e) {
-      throw new IllegalStateException("could not marshal group", e);
-    }
-  }
-
   @Nullable
   private static String getString(@NonNull Struct struct, @NonNull String key) {
     if (hasPropertyDescriptor(struct, key)) {
@@ -287,10 +245,6 @@ public class DeeplTranslationService {
     } else {
       return null;
     }
-  }
-
-  private static Optional<String> findString(@NonNull Struct struct, @NonNull String key) {
-    return Optional.ofNullable(getString(struct, key));
   }
 
   private static boolean hasPropertyDescriptor(@NonNull Struct struct, @NonNull String key) {
