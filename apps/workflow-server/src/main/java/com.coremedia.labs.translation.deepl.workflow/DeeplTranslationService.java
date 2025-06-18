@@ -1,15 +1,12 @@
 package com.coremedia.labs.translation.deepl.workflow;
 
-import com.coremedia.cap.struct.Struct;
+import com.coremedia.labs.translation.deepl.workflow.config.DeeplConfiguration;
 import com.coremedia.translate.xliff.core.jaxb.*;
 import com.deepl.api.DeepLClient;
 import com.deepl.api.DeepLException;
 import com.deepl.api.TextResult;
-import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
-import jakarta.xml.bind.Marshaller;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
@@ -23,21 +20,21 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
 
 public class DeeplTranslationService {
+  private static final Logger LOG = getLogger(lookup().lookupClass());
 
   public static final String XML_HEADER = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>";
   public static final String SOURCE_PREFIX = "<source xmlns=\"urn:oasis:names:tc:xliff:document:1.2\">";
   public static final String SOURCE_SUFFIX = "</source>";
+
+  private final DeeplConfiguration config;
   private DeepLClient deepLClient;
-  private final DeepLConfigurationProperties deepLConfigurationProperties;
 
-  private static final Logger LOG = getLogger(lookup().lookupClass());
-
-  public DeeplTranslationService(DeepLConfigurationProperties deepLConfigurationProperties) {
-    this.deepLConfigurationProperties = deepLConfigurationProperties;
+  public DeeplTranslationService(DeeplConfiguration config) {
+    this.config = config;
   }
 
-  public void setDeepLClient(DeepLClient deepLClient) {
-    this.deepLClient = deepLClient;
+  public void initialize(DeeplConfiguration config) {
+    this.deepLClient = new DeepLClient(config.getApiKey(), config.getClientOptions());
   }
 
   /**
@@ -51,7 +48,7 @@ public class DeeplTranslationService {
   public Optional<String> translate(String toTranslate, String sourceLanguage, String targetLanguage) {
     try {
       LOG.debug("Translating from {} to {}: {}", sourceLanguage, targetLanguage, toTranslate);
-      TextResult textResult = deepLClient.translateText(toTranslate, sourceLanguage, targetLanguage);
+      TextResult textResult = deepLClient.translateText(toTranslate, sourceLanguage, targetLanguage, config.getTextTranslationOptions());
       return Optional.ofNullable(textResult.getText());
     } catch (DeepLException | InterruptedException e) {
       LOG.error("Unable to translate.", e);
@@ -72,7 +69,7 @@ public class DeeplTranslationService {
         // DeepL (currently) only supports the language part of a locale for sourceLanguage
         String sourceLanguage = Locale.forLanguageTag(file.getSourceLanguage()).getLanguage();
         // determine target language to use for DeepL
-        String targetLanguage = getDeepLTargetLanguage(Locale.forLanguageTag(file.getTargetLanguage()));
+        String targetLanguage = getDeepLTargetLanguage(Locale.forLanguageTag(file.getTargetLanguage()), config);
         for (Object groupOrTransUnitOrBinUnit : file.getBody().getGroupOrTransUnitOrBinUnit()) {
           if (groupOrTransUnitOrBinUnit instanceof Group) {
             handleGroup((Group) groupOrTransUnitOrBinUnit, sourceLanguage, targetLanguage);
@@ -91,10 +88,10 @@ public class DeeplTranslationService {
    * @param targetLocale Target locale
    * @return targetLanguage to use for DeepL
    */
-  private String getDeepLTargetLanguage(Locale targetLocale) {
+  private String getDeepLTargetLanguage(Locale targetLocale, DeeplConfiguration config) {
     String languageTag = targetLocale.toLanguageTag();
     // strip the country unless country variant is explicitly supported/required by DeepL
-    if (deepLConfigurationProperties.getPassAsIsTargetLocales().contains(languageTag)) {
+    if (config.getPassAsIsTargetLocales().contains(languageTag)) {
       return languageTag;
     }
     return targetLocale.getLanguage();
@@ -225,29 +222,4 @@ public class DeeplTranslationService {
     return target;
   }
 
-  private static String convertToString(Xliff xliff) {
-    try {
-      StringWriter writer = new StringWriter();
-      JAXBContext context;
-      context = JAXBContext.newInstance("com.coremedia.translate.xliff.core.jaxb");
-      Marshaller m = context.createMarshaller();
-      m.marshal(xliff, writer);
-      return writer.toString();
-    } catch (JAXBException e) {
-      throw new IllegalStateException("could not marshal group", e);
-    }
-  }
-
-  @Nullable
-  private static String getString(@NonNull Struct struct, @NonNull String key) {
-    if (hasPropertyDescriptor(struct, key)) {
-      return struct.getString(key);
-    } else {
-      return null;
-    }
-  }
-
-  private static boolean hasPropertyDescriptor(@NonNull Struct struct, @NonNull String key) {
-    return struct.getType().getDescriptor(key) != null;
-  }
 }

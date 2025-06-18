@@ -9,20 +9,19 @@ import com.coremedia.cap.translate.xliff.XliffExporter;
 import com.coremedia.cap.translate.xliff.XliffImporter;
 import com.coremedia.cap.workflow.Process;
 import com.coremedia.cap.workflow.Task;
+import com.coremedia.labs.translation.deepl.workflow.config.DeeplConfiguration;
+import com.coremedia.labs.translation.deepl.workflow.config.DeeplConfigurationService;
 import com.coremedia.translate.item.ContentToTranslateItemTransformer;
 import com.coremedia.translate.item.TranslateItem;
 import com.coremedia.translate.xliff.core.jaxb.Xliff;
-import com.deepl.api.DeepLClient;
-import com.deepl.api.DeepLClientOptions;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.coremedia.translate.item.TransformStrategy.ITEM_PER_TARGET;
@@ -31,10 +30,6 @@ import static java.lang.invoke.MethodHandles.lookup;
 public class SendToDeeplAction extends DeeplAction {
 
   private static final Logger LOG = LoggerFactory.getLogger(lookup().lookupClass());
-
-  private XliffExporter exporter;
-  private XliffImporter importer;
-  private DeeplTranslationService translationService;
 
   public SendToDeeplAction() {
     super();
@@ -45,17 +40,8 @@ public class SendToDeeplAction extends DeeplAction {
   @Override
   public Object extractParameters(Task task) {
     Process process = task.getContainingProcess();
-    setExporter(getSpringContext().getBean("capXliffExporter", XliffExporter.class));
-    setTranslationService(getSpringContext().getBean("deeplTranslationService", DeeplTranslationService.class));
-    XliffImporter xliffImporter = getSpringContext().getBean("xliffImporter", XliffImporter.class);
-    setImporter(xliffImporter);
-
     List<Content> derivedContents = process.getLinks(derivedContentsVariable);
     List<ContentObject> masterContentObjects = process.getLinksAndVersions(masterContentObjectsVariable);
-
-    Site masterSite = getMasterSite(masterContentObjects);
-    initSession(masterSite);
-
     return new Parameters(derivedContents, masterContentObjects);
   }
 
@@ -63,11 +49,28 @@ public class SendToDeeplAction extends DeeplAction {
   protected Object doExecute(Object params) throws Exception {
     Parameters parameters = (Parameters) params;
 
+    // get Spring beans
+    ApplicationContext springContext = getSpringContext();
+    XliffExporter exporter = springContext.getBean("capXliffExporter", XliffExporter.class);
+    XliffImporter importer = springContext.getBean("xliffImporter", XliffImporter.class);
+    DeeplTranslationService translationService = springContext.getBean(DeeplTranslationService.class);
+    ContentToTranslateItemTransformer transformer = springContext.getBean(ContentToTranslateItemTransformer.class);
+    DeeplConfigurationService deeplConfigurationService = springContext.getBean(DeeplConfigurationService.class);
+
     if (parameters.derivedContents.isEmpty()) {
       return null;
     }
 
-    Map<Locale, List<TranslateItem>> translationItemsByLocale = getTranslationItemsByLocale(parameters.masterContentObjects, parameters.derivedContents, SendToDeeplAction::preferSiteLocale);
+    // determine config and initialize translation service
+    Site masterSite = getMasterSite(parameters.masterContentObjects);
+    DeeplConfiguration config = deeplConfigurationService.getDeeplConfigurationForSite(masterSite);
+    translationService.initialize(config);
+
+    Map<Locale, List<TranslateItem>> translationItemsByLocale = transformer.transform(parameters.masterContentObjects,
+                    parameters.derivedContents,
+                    SendToDeeplAction::preferSiteLocale,
+                    ITEM_PER_TARGET)
+            .collect(Collectors.groupingBy(TranslateItem::getSingleTargetLocale));
 
     for (List<TranslateItem> localeListEntry : translationItemsByLocale.values()) {
       Xliff xliff = exporter.exportXliff(localeListEntry, XliffExportOptions.xliffExportOptions().option(XliffExportOptions.TargetOption.TARGET_SOURCE).build());
@@ -77,15 +80,6 @@ public class SendToDeeplAction extends DeeplAction {
     return parameters.derivedContents;
   }
 
-  private Map<Locale, List<TranslateItem>> getTranslationItemsByLocale(
-          Collection<ContentObject> masterContentObjects,
-          Collection<Content> derivedContents,
-          Function<ContentObjectSiteAspect, Locale> localeMapper) {
-
-    ContentToTranslateItemTransformer transformer = getSpringContext().getBean(ContentToTranslateItemTransformer.class);
-
-    return transformer.transform(masterContentObjects, derivedContents, localeMapper, ITEM_PER_TARGET).collect(Collectors.groupingBy(TranslateItem::getSingleTargetLocale));
-  }
 
   private static Locale preferSiteLocale(ContentObjectSiteAspect aspect) {
     Site site = aspect.getSite();
@@ -104,43 +98,6 @@ public class SendToDeeplAction extends DeeplAction {
       this.derivedContents = derivedContents;
       this.masterContentObjects = masterContentObjects;
     }
-  }
-
-  public void setExporter(XliffExporter exporter) {
-    this.exporter = exporter;
-  }
-
-  public void setTranslationService(DeeplTranslationService translationService) {
-    this.translationService = translationService;
-  }
-
-  public void setImporter(XliffImporter importer) {
-    this.importer = importer;
-  }
-
-
-  // --- Internal -------------------------------------------------------------
-
-  private void initSession(Site site) {
-    DeeplSettings deeplSettings = getDeeplSettingForSite(site);
-
-    String apiKey = deeplSettings.getApiKey();
-    if (StringUtils.isBlank(apiKey)) {
-      throw new IllegalStateException("No DeepL API key configured.");
-    }
-
-    DeepLClientOptions options = new DeepLClientOptions();
-    options.setMaxRetries(deeplSettings.getMaxRetries());
-    options.setTimeout(deeplSettings.getTimeout());
-
-    if (deeplSettings.getProxy() != null) {
-      options.setProxy(deeplSettings.getProxy());
-    }
-
-    // TODO: Set headers if present
-
-    DeepLClient deepLClient = new DeepLClient(apiKey, options);
-    translationService.setDeepLClient(deepLClient);
   }
 
 }

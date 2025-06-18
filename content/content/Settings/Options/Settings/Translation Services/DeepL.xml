@@ -1,45 +1,27 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<CMSettings folder="/Settings/Options/Settings/Translation Services" name="DeepL">
-  <settings>
-    <Struct xmlns="http://www.coremedia.com/2008/struct">
-      <StructProperty Name="deepl">
-        <Struct>
-
-          <!--
-            Override API Url if required:
-            By default, the correct DeepL API (Free or Pro) is automatically selected.
-            Pro API:
-            <StringProperty Name="url">https://api.deepl.com/v2</StringProperty>
-            Free API:
-            <StringProperty Name="url">https://api-free.deepl.com/v2</StringProperty>
-          -->
-
-          <!--
-            Deepl API Key (required).
-          -->
-          <StringProperty Name="apiKey"></StringProperty>
-
-          <!--
-            Maximum number of failed HTTP requests to retry, the default is 5.
-          -->
-          <IntProperty Name="maxRetries">5</IntProperty>
-
-          <!--
-            Connection timeout for each HTTP request.
-          -->
-          <IntProperty Name="timeout">30</IntProperty>
-
-          <!--
-            Provide details about a proxy to use for all HTTP requests to DeepL.
-          <StringProperty Name="proxy"></StringProperty>
-          -->
-
-          <!--
-            Additional HTTP headers to attach to all requests.
-          <StringProperty Name="headers"></StringProperty>
-          -->
-        </Struct>
-      </StructProperty>
-    </Struct>
-  </settings>
+<CMSettings folder="/Settings/Options/Settings/Translation Services" name="DeepL" xmlns:cmexport="http://www.coremedia.com/2012/cmexport">
+  <externalRefId></externalRefId>
+  <locale>en</locale>
+  <master/>
+  <settings><Struct xmlns="http://www.coremedia.com/2008/struct" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <StructProperty Name="deepl">
+      <Struct>
+        <!-- Proxy to use for all HTTP requests to DeepL
+        <StringProperty Name="proxyUrl">http://proxy.example.com:8080</StringProperty>
+         -->
+        <StructProperty Name="clientOptions">
+          <Struct>
+            <IntProperty Name="maxRetries">10</IntProperty>
+            <StringProperty Name="timeout">90s</StringProperty>
+          </Struct>
+        </StructProperty>
+        <StructProperty Name="textTranslationOptions">
+          <Struct>
+            <StringProperty Name="modelType">latency_optimized</StringProperty>
+          </Struct>
+        </StructProperty>
+      </Struct>
+    </StructProperty>
+  </Struct></settings>
+  <identifier></identifier>
 </CMSettings>
