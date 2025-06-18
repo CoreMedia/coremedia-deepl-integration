@@ -11,7 +11,9 @@ import com.coremedia.rest.cap.workflow.validation.WorkflowValidator;
 import com.coremedia.rest.cap.workflow.validation.model.WorkflowValidationParameterModel;
 import com.coremedia.rest.validation.Issues;
 import com.coremedia.rest.validation.Severity;
-import com.deepl.api.*;
+import com.deepl.api.DeepLException;
+import com.deepl.api.Language;
+import com.deepl.api.Translator;
 import edu.umd.cs.findbugs.annotations.Nullable;
 
 import java.util.*;

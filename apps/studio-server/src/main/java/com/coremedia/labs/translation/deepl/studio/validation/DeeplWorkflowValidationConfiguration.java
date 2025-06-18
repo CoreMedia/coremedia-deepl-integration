@@ -17,11 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.coremedia.rest.cap.workflow.validation.configuration.TranslationWorkflowValidationConfiguration.TASK_ERROR_VALIDATOR;
-import static com.coremedia.rest.cap.workflow.validation.configuration.TranslationWorkflowValidationConfiguration.TRANSLATE_TASK_NAME;
-import static com.coremedia.rest.cap.workflow.validation.configuration.TranslationWorkflowValidationConfiguration.TRANSLATION_START_VALIDATORS;
-import static com.coremedia.rest.cap.workflow.validation.configuration.TranslationWorkflowValidationConfiguration.TRANSLATION_WFNOT_RUNNING;
-import static com.coremedia.rest.cap.workflow.validation.configuration.TranslationWorkflowValidationConfiguration.TRANSLATION_WFRUNNING;
+import static com.coremedia.rest.cap.workflow.validation.configuration.TranslationWorkflowValidationConfiguration.*;
 
 @AutoConfiguration
 @Import(TranslationWorkflowValidationConfiguration.class)

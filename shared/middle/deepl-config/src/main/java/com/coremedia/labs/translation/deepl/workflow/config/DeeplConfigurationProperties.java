@@ -1,0 +1,18 @@
+package com.coremedia.labs.translation.deepl.workflow.config;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.time.Duration;
+import java.util.List;
+
+@ConfigurationProperties(prefix = "deepl")
+public class DeeplConfigurationProperties extends DeeplConfiguration {
+
+  public static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(30);
+  public static final List<String> DEFAULT_PASS_AS_IS_TARGET_LOCALES = List.of("en-US", "en-GB", "pt-PT", "pt-BR", "zh-HANS", "zh-HANT");
+
+  public DeeplConfigurationProperties() {
+    super(DEFAULT_TIMEOUT, DEFAULT_PASS_AS_IS_TARGET_LOCALES);
+  }
+
+}

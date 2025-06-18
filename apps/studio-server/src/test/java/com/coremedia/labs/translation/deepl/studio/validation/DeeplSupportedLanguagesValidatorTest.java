@@ -2,17 +2,15 @@ package com.coremedia.labs.translation.deepl.studio.validation;
 
 
 import com.coremedia.cap.multisite.SitesService;
-import com.deepl.api.DeepLException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DeeplSupportedLanguagesValidatorTest {
 

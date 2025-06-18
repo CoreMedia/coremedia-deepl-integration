@@ -3,36 +3,32 @@ package com.coremedia.labs.translation.deepl.workflow;
 import com.coremedia.blueprint.workflow.actions.CreateProjectActionConfiguration;
 import com.coremedia.cap.translate.xliff.config.XliffExporterConfiguration;
 import com.coremedia.cap.translate.xliff.config.XliffImporterConfiguration;
+import com.coremedia.labs.translation.deepl.workflow.config.DeeplConfigurationProperties;
+import com.coremedia.labs.translation.deepl.workflow.config.DeeplSpringConfiguration;
 import com.coremedia.translate.item.TranslateItemConfiguration;
 import com.coremedia.translate.workflow.DefaultTranslationWorkflowDerivedContentsStrategy;
 import com.coremedia.translate.workflow.TranslationWorkflowDerivedContentsStrategy;
 import edu.umd.cs.findbugs.annotations.DefaultAnnotation;
 import edu.umd.cs.findbugs.annotations.NonNull;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
-
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.context.annotation.Scope;
 
 @AutoConfiguration
 @Import({
+        DeeplSpringConfiguration.class,
         XliffImporterConfiguration.class,
         XliffExporterConfiguration.class,
         TranslateItemConfiguration.class,
         CreateProjectActionConfiguration.class})
-@PropertySource(value = "classpath:META-INF/coremedia/deepl-workflow.properties")
-@EnableConfigurationProperties({
-        DeepLConfigurationProperties.class,
-})
 @DefaultAnnotation(NonNull.class)
-public class TranslateDeeplConfiguration {
+public class TranslateDeeplAutoConfiguration {
 
   @Bean
-  DeeplTranslationService deeplTranslationService(DeepLConfigurationProperties deepLConfigurationProperties) {
+  @Scope("prototype")
+  DeeplTranslationService deeplTranslationService(DeeplConfigurationProperties deepLConfigurationProperties) {
     return new DeeplTranslationService(deepLConfigurationProperties);
   }
 
@@ -42,16 +38,13 @@ public class TranslateDeeplConfiguration {
    * @return deeplTranslationWorkflowDerivedContentsStrategy
    */
   @Bean
+  @SuppressWarnings("unused")
   TranslationWorkflowDerivedContentsStrategy deeplTranslationWorkflowDerivedContentsStrategy() {
     DefaultTranslationWorkflowDerivedContentsStrategy deeplTranslationWorkflowDerivedContentsStrategy = new DefaultTranslationWorkflowDerivedContentsStrategy();
+    // artificial use of InitializingBean as workaround for issues with spring-beans dependency after using it in tests
+    InitializingBean initializingBean = deeplTranslationWorkflowDerivedContentsStrategy;
     deeplTranslationWorkflowDerivedContentsStrategy.setProcessDefinitionName("TranslationDeepl");
     return deeplTranslationWorkflowDerivedContentsStrategy;
-  }
-
-  @ConfigurationProperties(prefix = "deepl")
-  @Bean
-  public Map<String, Object> deeplConfigurationProperties() {
-    return new HashMap<>();
   }
 
 }

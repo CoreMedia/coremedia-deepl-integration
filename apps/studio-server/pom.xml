@@ -16,7 +16,6 @@
     <coremedia.project.extension.for>studio-server</coremedia.project.extension.for>
   </properties>
 
-
   <dependencies>
 
     <!-- EXTENSION dependencies -->
