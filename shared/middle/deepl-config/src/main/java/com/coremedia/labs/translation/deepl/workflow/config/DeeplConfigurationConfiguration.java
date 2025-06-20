@@ -12,7 +12,7 @@ import org.springframework.core.convert.converter.Converter;
         DeeplConfigurationProperties.class,
 })
 @PropertySource(value = "classpath:META-INF/coremedia/deepl-workflow.properties")
-public class DeeplSpringConfiguration {
+public class DeeplConfigurationConfiguration {
 
   @Bean
   public DeeplConfigurationService deeplConfigurationService(DeeplConfigurationProperties deeplConfigurationProperties) {
