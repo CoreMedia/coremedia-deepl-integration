@@ -14,9 +14,16 @@
 
   <properties>
     <coremedia.project.extension.for>studio-server</coremedia.project.extension.for>
+    <deepl.version>1.10.0</deepl.version>
   </properties>
 
   <dependencies>
+
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>deepl-config</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- EXTENSION dependencies -->
     <dependency>
@@ -24,7 +31,6 @@
     <artifactId>spotbugs-annotations</artifactId>
     <scope>provided</scope>
     </dependency>
-
 
     <!-- COREMEDIA dependencies -->
     <dependency>
@@ -36,11 +42,6 @@
       <groupId>com.coremedia.cms</groupId>
       <artifactId>cap-unified-api</artifactId>
     </dependency>
-    <dependency>
-      <groupId>com.coremedia.cms</groupId>
-      <artifactId>cap-unified-api-util</artifactId>
-    </dependency>
-
 
     <dependency>
       <groupId>com.coremedia.cms</groupId>
@@ -51,7 +52,6 @@
       <groupId>com.coremedia.cms</groupId>
       <artifactId>cap-multisite</artifactId>
     </dependency>
-
 
     <!-- THIRD-PARTY dependencies -->
     <dependency>
@@ -66,15 +66,25 @@
 
     <dependency>
       <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-autoconfigure</artifactId>
     </dependency>
 
     <dependency>
       <groupId>com.deepl.api</groupId>
       <artifactId>deepl-java</artifactId>
-      <version>1.4.0</version>
+      <version>${deepl.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+    </dependency>
 
     <!-- TEST scope -->
     <dependency>
@@ -82,6 +92,19 @@
       <artifactId>junit-jupiter</artifactId>
       <scope>test</scope>
     </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
+    </dependency>
+
   </dependencies>
 
 </project>

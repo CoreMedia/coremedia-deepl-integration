@@ -1,53 +1,45 @@
 package com.coremedia.labs.translation.deepl.studio.validation;
 
-import com.coremedia.cap.content.Content;
 import com.coremedia.cap.content.ContentObject;
 import com.coremedia.cap.multisite.ContentObjectSiteAspect;
 import com.coremedia.cap.multisite.Site;
 import com.coremedia.cap.multisite.SitesService;
-import com.coremedia.cap.struct.Struct;
-import com.coremedia.cap.util.StructUtil;
+import com.coremedia.labs.translation.deepl.workflow.config.DeeplConfiguration;
+import com.coremedia.labs.translation.deepl.workflow.config.DeeplConfigurationService;
 import com.coremedia.rest.cap.workflow.validation.WorkflowValidator;
 import com.coremedia.rest.cap.workflow.validation.model.WorkflowValidationParameterModel;
 import com.coremedia.rest.validation.Issues;
 import com.coremedia.rest.validation.Severity;
+import com.deepl.api.DeepLClient;
 import com.deepl.api.DeepLException;
 import com.deepl.api.Language;
-import com.deepl.api.Translator;
-import edu.umd.cs.findbugs.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.lang.invoke.MethodHandles.lookup;
+
 public class DeeplSupportedLanguagesValidator implements WorkflowValidator {
-  private static final String LOCAL_SETTINGS = "localSettings";
-  private static final String LINKED_SETTINGS = "linkedSettings";
-  private static final String CMSETTINGS_SETTINGS = "settings";
-  public static final String KEY_DEEPL_ROOT = "deepl";
-  public static final String KEY_API_KEY = "apiKey";
-  private String apiKey;
+  private static final Logger LOG = LoggerFactory.getLogger(lookup().lookupClass());
 
-  //  private static final List<Locale> SUPPORTED_SOURCE_LOCALES = Stream.of("BG", "CS", "DA", "DE", "EL", "EN", "ES", "ET", "FI", "FR", "HU", "ID", "IT", "JA", "KO", "LT", "LV", "NB", "NL", "PL", "PT", "RO", "RU", "SK", "SL", "SV", "TR", "UK", "ZH").map(Locale::forLanguageTag).collect(Collectors.toList());
-  //  private static final List<Locale> SUPPORTED_TARGET_LOCALES = Stream.of("BG", "CS", "DA", "DE", "EL", "EN", "EN-GB", "EN-US", "ES", "ET", "FI", "FR", "HU", "ID", "IT", "JA", "KO", "LT", "LV", "NB", "NL", "PL", "PT", "PT-BR", "PT-PT", "RO", "RU", "SK", "SL", "SV", "TR", "UK", "ZH").map(Locale::forLanguageTag).collect(Collectors.toList());
-  private Translator translator;
+  private final DeeplConfigurationService deeplConfigurationService;
+  private final SitesService sitesService;
 
-  private SitesService sitesService;
-
-
-  public DeeplSupportedLanguagesValidator(SitesService sitesService) {
+  public DeeplSupportedLanguagesValidator(DeeplConfigurationService deeplConfigurationService, SitesService sitesService) {
+    this.deeplConfigurationService = deeplConfigurationService;
     this.sitesService = sitesService;
   }
 
-  public List<Locale> getSupportedSourceLocales() throws DeepLException, InterruptedException {
-    translator = new Translator(apiKey);
-    List<String> supportedStrings = translator.getSourceLanguages().stream().map(Language::getCode).collect(Collectors.toList());
-    return supportedStrings.stream().map(Locale::new).collect(Collectors.toList());
+  public static List<Locale> getSupportedSourceLocales(DeepLClient deeplClient) throws DeepLException, InterruptedException {
+    List<String> supportedStrings = deeplClient.getSourceLanguages().stream().map(Language::getCode).toList();
+    return supportedStrings.stream().map(Locale::forLanguageTag).collect(Collectors.toList());
   }
 
-  public List<Locale> getSupportedTargetLocales() throws DeepLException, InterruptedException {
-    translator = new Translator(apiKey);
-    List<String> supportedStrings = translator.getTargetLanguages().stream().map(Language::getCode).collect(Collectors.toList());
-    return supportedStrings.stream().map(Locale::new).collect(Collectors.toList());
+  public static List<Locale> getSupportedTargetLocales(DeepLClient deeplClient) throws DeepLException, InterruptedException {
+    List<String> supportedStrings = deeplClient.getTargetLanguages().stream().map(Language::getCode).toList();
+    return supportedStrings.stream().map(Locale::forLanguageTag).collect(Collectors.toList());
   }
 
   @Override
@@ -69,27 +61,38 @@ public class DeeplSupportedLanguagesValidator implements WorkflowValidator {
             .distinct()
             .collect(Collectors.toList());
 
-    // Get ApiKey
+    // get DeeplConfiguration
     Site mastersite = getMasterSite(workflowValidationParameterModel.getChangeSet());
-    apiKey = getApiKey(mastersite.getSiteRootDocument());
-
+    DeeplConfiguration config = deeplConfigurationService.getDeeplConfigurationForSite(mastersite);
+    // if we don't have an apiKey, log a warning and skip validation
+    String apiKey = config.getApiKey();
+    if(apiKey == null || apiKey.isEmpty()) {
+      LOG.warn("No API key configured for DeepL. Skipping language validation.");
+      return;
+    }
+    DeepLClient deeplClient = new DeepLClient(apiKey, config.getClientOptions());
     // Validate source languages
     try {
-      if (!sourceLocales.isEmpty() && !isValidLocaleList(sourceLocales, getSupportedSourceLocales())) {
-        issues.addIssue(Severity.ERROR, null, "unsupportedSourceLocales", getFirstInvalidLocale(sourceLocales, getSupportedSourceLocales()));
+      if (!sourceLocales.isEmpty()) {
+        List<Locale> supportedSourceLocales = getSupportedSourceLocales(deeplClient);
+        if(!isValidLocaleList(sourceLocales, supportedSourceLocales)) {
+          issues.addIssue(Severity.ERROR, null, "unsupportedSourceLocales", getFirstInvalidLocale(sourceLocales, supportedSourceLocales));
+        }
       }
     } catch (DeepLException | InterruptedException e) {
       throw new RuntimeException(e);
     }
     // Validate target languages
     try {
-      if (!targetLocales.isEmpty() && !isValidLocaleList(targetLocales, getSupportedTargetLocales())) {
-        issues.addIssue(Severity.WARN, null, "unsupportedTargetLocales", getFirstInvalidLocale(targetLocales, getSupportedTargetLocales()));
+      if (!targetLocales.isEmpty()) {
+        List<Locale> supportedTargetLocales = getSupportedTargetLocales(deeplClient);
+        if (!isValidLocaleList(targetLocales, supportedTargetLocales)) {
+          issues.addIssue(Severity.WARN, null, "unsupportedTargetLocales", getFirstInvalidLocale(targetLocales, supportedTargetLocales));
+        }
       }
     } catch (DeepLException | InterruptedException e) {
       throw new RuntimeException(e);
     }
-
   }
 
   /**
@@ -99,7 +102,7 @@ public class DeeplSupportedLanguagesValidator implements WorkflowValidator {
    * @param validLocales
    * @return
    */
-  public boolean isValidLocaleList(List<Locale> localesToCheck, List<Locale> validLocales) {
+  public static boolean isValidLocaleList(List<Locale> localesToCheck, List<Locale> validLocales) {
     return localesToCheck.stream()
             .filter(l -> !isValidLocale(l, validLocales))
             .limit(1)
@@ -114,7 +117,7 @@ public class DeeplSupportedLanguagesValidator implements WorkflowValidator {
    * @param validLocales
    * @return
    */
-  public boolean isValidLocale(Locale localeToCheck, List<Locale> validLocales) {
+  public static boolean isValidLocale(Locale localeToCheck, List<Locale> validLocales) {
     Optional<Locale> match = validLocales.stream()
             .filter(l -> l.getLanguage().contains(localeToCheck.getLanguage()))
             .limit(1)
@@ -122,42 +125,13 @@ public class DeeplSupportedLanguagesValidator implements WorkflowValidator {
     return match.isPresent();
   }
 
-  public Optional<Locale> getFirstInvalidLocale(List<Locale> localesToCheck, List<Locale> validLocales) {
+  public static Optional<Locale> getFirstInvalidLocale(List<Locale> localesToCheck, List<Locale> validLocales) {
     for (Locale locale : localesToCheck) {
       if (!isValidLocale(locale, validLocales)) {
         return Optional.of(locale);
       }
     }
     return Optional.empty();
-  }
-
-  public String getApiKey(Content content) {
-    Struct localSettings = getStruct(content, LOCAL_SETTINGS);
-    Struct struct = StructUtil.mergeStructList(
-            localSettings,
-            content.getLinks(LINKED_SETTINGS)
-                    .stream()
-                    .map(link -> getStruct(link, CMSETTINGS_SETTINGS))
-                    .collect(Collectors.toList())
-    );
-
-    Map<String, Object> structSettings = new HashMap<>();
-
-    if (struct != null) {
-      Object value = struct.get(KEY_DEEPL_ROOT);
-      if (value instanceof Struct) {
-        structSettings = ((Struct) value).toNestedMaps();
-      }
-    }
-    return structSettings.get(KEY_API_KEY).toString();
-  }
-
-  @Nullable
-  private static Struct getStruct(Content content, String name) {
-    if (content != null && content.isInProduction()) {
-      return content.getStruct(name);
-    }
-    return null;
   }
 
   protected Site getMasterSite(Collection<? extends ContentObject> masterContents) {

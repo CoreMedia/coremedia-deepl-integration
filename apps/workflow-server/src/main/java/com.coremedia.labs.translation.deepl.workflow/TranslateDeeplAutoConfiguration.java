@@ -4,7 +4,7 @@ import com.coremedia.blueprint.workflow.actions.CreateProjectActionConfiguration
 import com.coremedia.cap.translate.xliff.config.XliffExporterConfiguration;
 import com.coremedia.cap.translate.xliff.config.XliffImporterConfiguration;
 import com.coremedia.labs.translation.deepl.workflow.config.DeeplConfigurationProperties;
-import com.coremedia.labs.translation.deepl.workflow.config.DeeplSpringConfiguration;
+import com.coremedia.labs.translation.deepl.workflow.config.DeeplConfigurationConfiguration;
 import com.coremedia.translate.item.TranslateItemConfiguration;
 import com.coremedia.translate.workflow.DefaultTranslationWorkflowDerivedContentsStrategy;
 import com.coremedia.translate.workflow.TranslationWorkflowDerivedContentsStrategy;
@@ -18,7 +18,7 @@ import org.springframework.context.annotation.Scope;
 
 @AutoConfiguration
 @Import({
-        DeeplSpringConfiguration.class,
+        DeeplConfigurationConfiguration.class,
         XliffImporterConfiguration.class,
         XliffExporterConfiguration.class,
         TranslateItemConfiguration.class,
