@@ -41,6 +41,14 @@
     <!-- list of contents that were changed both in the derived and in the master site at conflicting places -->
     <AggregationVariable name="autoMergeConflicts" type="Resource"/>
 
+    <!--
+     A JSON blob with errors that happened when downloading and/or importing XLIFF from the translation service,
+     or null if no such errors occurred. Studio's TaskErrorValidator can then display these errors as task issues.
+     The JSON data structure is a serialized map from Studio severity to map of error code to list of affected
+     contents, i.e. Map<Severity, Map<String, List<Content>>>. The list of contents may be empty for some errors.
+   -->
+    <Variable name="workflowActionIssues" type="Blob"/>
+
     <!-- map that groups each derived content by its locale-->
     <Variable name="translationTreeData" type="Blob"/>
     <!-- map that groups each masterVersion by its derived content-->
@@ -72,6 +80,7 @@
       <Writes variable="targetSiteId"/>
       <Writes variable="performer"/>
       <Writes variable="placeholderPreparationStrategy"/>
+      <Writes variable="workflowActionIssues"/>
       <Writes variable="createProject"/>
     </Assignment>
 
@@ -124,7 +133,8 @@
     <AutomatedTask name="SendToTranslationService" successor="AssignSelf">
       <Action class="com.coremedia.labs.translation.deepl.workflow.SendToDeeplAction"
               derivedContentsVariable="derivedContents"
-              masterContentObjectsVariable="masterContentObjects"/>
+              masterContentObjectsVariable="masterContentObjects"
+              issuesVariable="workflowActionIssues"/>
     </AutomatedTask>
 
     <AutomatedTask name="AssignSelf"
@@ -161,6 +171,7 @@
         <Reads variable="targetSiteId"/>
         <Reads variable="masterContentObjects"/>
         <Reads variable="autoMergeConflicts"/>
+        <Reads variable="workflowActionIssues"/>
         <Writes variable="comment"/>
         <Writes variable="derivedContents"/>
         <Writes variable="createdContents"/>

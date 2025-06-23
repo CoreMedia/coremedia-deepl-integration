@@ -27,6 +27,7 @@ import static com.coremedia.rest.cap.workflow.validation.configuration.Translati
 public class DeeplWorkflowValidationAutoConfiguration {
 
   public static final String TRANSLATION_DEEPL_VALIDATOR_KEY = "TranslationDeepl";
+  public static final String REVIEW = "Review";
 
   @Bean
   WorkflowValidatorsModel translationDeeplWFValidators(@Qualifier(TRANSLATION_START_VALIDATORS) WorkflowStartValidators translationStartValidators,
@@ -37,10 +38,13 @@ public class DeeplWorkflowValidationAutoConfiguration {
                                                        SitesService sitesService) {
     ValidationTask runningTask = new ValidationTask(TRANSLATE_TASK_NAME, TaskState.RUNNING);
     ValidationTask waitingTask = new ValidationTask(TRANSLATE_TASK_NAME, TaskState.ACTIVATED);
+    ValidationTask reviewTask = new ValidationTask(REVIEW);
 
     WorkflowTaskValidators taskValidators = new WorkflowTaskValidators(
             Map.of(runningTask, translationWFRunning,
-                    waitingTask, translationWFNotRunning
+                    waitingTask, translationWFNotRunning,
+                    // show any (non-escalating) errors during Review task
+                    reviewTask, List.of(taskErrorValidator)
             )
     );
 
