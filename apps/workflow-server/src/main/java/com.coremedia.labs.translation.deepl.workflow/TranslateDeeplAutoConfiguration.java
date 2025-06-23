@@ -1,10 +1,11 @@
 package com.coremedia.labs.translation.deepl.workflow;
 
 import com.coremedia.blueprint.workflow.actions.CreateProjectActionConfiguration;
+import com.coremedia.cap.content.ContentRepository;
 import com.coremedia.cap.translate.xliff.config.XliffExporterConfiguration;
 import com.coremedia.cap.translate.xliff.config.XliffImporterConfiguration;
-import com.coremedia.labs.translation.deepl.workflow.config.DeeplConfigurationProperties;
 import com.coremedia.labs.translation.deepl.workflow.config.DeeplConfigurationConfiguration;
+import com.coremedia.labs.translation.deepl.workflow.config.DeeplConfigurationProperties;
 import com.coremedia.translate.item.TranslateItemConfiguration;
 import com.coremedia.translate.workflow.DefaultTranslationWorkflowDerivedContentsStrategy;
 import com.coremedia.translate.workflow.TranslationWorkflowDerivedContentsStrategy;
@@ -28,8 +29,9 @@ public class TranslateDeeplAutoConfiguration {
 
   @Bean
   @Scope("prototype")
-  DeeplTranslationService deeplTranslationService(DeeplConfigurationProperties deepLConfigurationProperties) {
-    return new DeeplTranslationService(deepLConfigurationProperties);
+  DeeplTranslationService deeplTranslationService(DeeplConfigurationProperties deepLConfigurationProperties,
+                                                  ContentRepository contentRepository) {
+    return new DeeplTranslationService(deepLConfigurationProperties, contentRepository);
   }
 
   /**

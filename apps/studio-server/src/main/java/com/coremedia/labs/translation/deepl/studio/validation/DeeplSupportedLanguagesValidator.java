@@ -67,31 +67,28 @@ public class DeeplSupportedLanguagesValidator implements WorkflowValidator {
     // if we don't have an apiKey, log a warning and skip validation
     String apiKey = config.getApiKey();
     if(apiKey == null || apiKey.isEmpty()) {
-      LOG.warn("No API key configured for DeepL. Skipping language validation.");
+      LOG.warn("No API key configured for DeepL. Skipping supported language validation.");
       return;
     }
     DeepLClient deeplClient = new DeepLClient(apiKey, config.getClientOptions());
-    // Validate source languages
     try {
+      // Validate source languages
       if (!sourceLocales.isEmpty()) {
         List<Locale> supportedSourceLocales = getSupportedSourceLocales(deeplClient);
         if(!isValidLocaleList(sourceLocales, supportedSourceLocales)) {
           issues.addIssue(Severity.ERROR, null, "unsupportedSourceLocales", getFirstInvalidLocale(sourceLocales, supportedSourceLocales));
         }
       }
-    } catch (DeepLException | InterruptedException e) {
-      throw new RuntimeException(e);
-    }
-    // Validate target languages
-    try {
+      // Validate target languages
       if (!targetLocales.isEmpty()) {
         List<Locale> supportedTargetLocales = getSupportedTargetLocales(deeplClient);
         if (!isValidLocaleList(targetLocales, supportedTargetLocales)) {
-          issues.addIssue(Severity.WARN, null, "unsupportedTargetLocales", getFirstInvalidLocale(targetLocales, supportedTargetLocales));
+          issues.addIssue(Severity.ERROR, null, "unsupportedTargetLocales", getFirstInvalidLocale(targetLocales, supportedTargetLocales));
         }
       }
     } catch (DeepLException | InterruptedException e) {
-      throw new RuntimeException(e);
+      LOG.warn("Failed to validate supported languages with DeepL API", e);
+      issues.addIssue(Issues.LOCALIZATION_ISSUE_CATEGORY, Severity.ERROR, null, "failedLanguageValidation");
     }
   }
 

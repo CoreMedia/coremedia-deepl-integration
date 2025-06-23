@@ -19,27 +19,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
+import java.io.Serial;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.coremedia.translate.item.TransformStrategy.ITEM_PER_TARGET;
 import static java.lang.invoke.MethodHandles.lookup;
 
-public class SendToDeeplAction extends DeeplAction {
-
+public class SendToDeeplAction extends DeeplAction<SendToDeeplAction.Parameters, SendToDeeplAction.Result> {
   private static final Logger LOG = LoggerFactory.getLogger(lookup().lookupClass());
 
+  @Serial
+  private static final long serialVersionUID = -8558382288631077034L;
+
   public SendToDeeplAction() {
-    super();
+    super(true);
   }
 
-  // --- LongAction interface ----------------------------------------------------------------------
+  // --- DeeplAction interface ----------------------------------------------------------------------
 
   @Override
-  public Object extractParameters(Task task) {
+  Parameters doExtractParameters(Task task) {
     Process process = task.getContainingProcess();
     List<Content> derivedContents = process.getLinks(derivedContentsVariable);
     List<ContentObject> masterContentObjects = process.getLinksAndVersions(masterContentObjectsVariable);
@@ -47,9 +51,9 @@ public class SendToDeeplAction extends DeeplAction {
   }
 
   @Override
-  protected Object doExecute(Object params) throws Exception {
-    Parameters parameters = (Parameters) params;
-
+  void doExecuteDeeplAction(Parameters parameters,
+                            Consumer<? super Result> resultConsumer,
+                            Map<String, List<Content>> issues) throws Exception {
     // get Spring beans
     ApplicationContext springContext = getSpringContext();
     XliffExporter exporter = springContext.getBean("capXliffExporter", XliffExporter.class);
@@ -57,34 +61,38 @@ public class SendToDeeplAction extends DeeplAction {
     DeeplTranslationService translationService = springContext.getBean(DeeplTranslationService.class);
     ContentToTranslateItemTransformer transformer = springContext.getBean(ContentToTranslateItemTransformer.class);
     DeeplConfigurationService deeplConfigurationService = springContext.getBean(DeeplConfigurationService.class);
-
     if (parameters.derivedContents.isEmpty()) {
-      return null;
+      return;
     }
-
+    Result result = new Result();
+    resultConsumer.accept(result);
     // determine config and initialize translation service
     Site masterSite = getMasterSite(parameters.masterContentObjects);
     DeeplConfiguration config = deeplConfigurationService.getDeeplConfigurationForSite(masterSite);
     translationService.initialize(config);
-
     Map<Locale, List<TranslateItem>> translationItemsByLocale = transformer.transform(parameters.masterContentObjects,
                     parameters.derivedContents,
                     SendToDeeplAction::preferSiteLocale,
                     ITEM_PER_TARGET)
             .collect(Collectors.groupingBy(TranslateItem::getSingleTargetLocale));
-
+    // translate content
     for (List<TranslateItem> localeListEntry : translationItemsByLocale.values()) {
       Xliff xliff = exporter.exportXliff(localeListEntry, XliffExportOptions.xliffExportOptions().option(XliffExportOptions.TargetOption.TARGET_SOURCE).build());
-      translationService.translateXliff(xliff);
-      try (AsRobotUser asRobotUser =  getAsRobotUser()) {
+      translationService.translateXliff(xliff, issues);
+      try (AsRobotUser asRobotUser = getAsRobotUser()) {
         asRobotUser.call(() -> importer.importXliff(xliff));
       }
+      importer.importXliff(xliff);
     }
-    return parameters.derivedContents;
   }
 
   AsRobotUser getAsRobotUser() {
     return new AsRobotUser(getConnection(), getSpringContext(), getCapSessionPool());
+  }
+
+  @Override
+  Void doStoreResult(Task task, Result result) {
+    return null;
   }
 
   private static Locale preferSiteLocale(ContentObjectSiteAspect aspect) {
@@ -95,15 +103,9 @@ public class SendToDeeplAction extends DeeplAction {
     return site.getLocale();
   }
 
-  private static final class Parameters {
-    public final Collection<Content> derivedContents;
-    public final Collection<ContentObject> masterContentObjects;
-
-    public Parameters(final Collection<Content> derivedContents,
-                      final Collection<ContentObject> masterContentObjects) {
-      this.derivedContents = derivedContents;
-      this.masterContentObjects = masterContentObjects;
-    }
+  record Parameters(Collection<Content> derivedContents, Collection<ContentObject> masterContentObjects) {
   }
 
+  static final class Result {
+  }
 }

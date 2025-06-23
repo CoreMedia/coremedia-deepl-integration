@@ -124,6 +124,14 @@ workflowLocalizationRegistry._.addLocalization(WORKFLOW_NAME_DIRECT, {
 });
 
 workflowLocalizationRegistry._.addIssuesLocalization({
+  "DEEPL-WF-10000": Deepl_properties["DEEPL-WF-10000_text"],
+  "DEEPL-WF-20000": Deepl_properties["DEEPL-WF-20000_text"],
+  "DEEPL-WF-20001": Deepl_properties["DEEPL-WF-20001_text"],
+  "DEEPL-WF-20002": Deepl_properties["DEEPL-WF-20002_text"],
+  "DEEPL-WF-20003": Deepl_properties["DEEPL-WF-20003_text"],
+  "DEEPL-WF-20004": Deepl_properties["DEEPL-WF-20004_text"],
+  "DEEPL-WF-50000": Deepl_properties["DEEPL-WF-50000_text"],
+  failedLanguageValidation: Deepl_properties.failedLanguageValidation_text,
   unsupportedSourceLocales: {
     singular: Deepl_properties.ERROR_singular_text,
     plural:Deepl_properties.ERROR_plural_text,

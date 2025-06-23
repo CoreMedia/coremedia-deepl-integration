@@ -1,5 +1,8 @@
 package com.coremedia.labs.translation.deepl.workflow;
 
+import com.coremedia.cap.common.IdHelper;
+import com.coremedia.cap.content.Content;
+import com.coremedia.cap.content.ContentRepository;
 import com.coremedia.labs.translation.deepl.workflow.config.DeeplConfiguration;
 import com.coremedia.translate.xliff.core.jaxb.*;
 import com.deepl.api.DeepLClient;
@@ -12,9 +15,7 @@ import org.slf4j.Logger;
 
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
+import java.util.*;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.slf4j.LoggerFactory.getLogger;
@@ -27,10 +28,12 @@ public class DeeplTranslationService {
   public static final String SOURCE_SUFFIX = "</source>";
 
   private final DeeplConfiguration config;
+  private final ContentRepository contentRepository;
   private DeepLClient deepLClient;
 
-  public DeeplTranslationService(DeeplConfiguration config) {
+  public DeeplTranslationService(DeeplConfiguration config, ContentRepository contentRepository) {
     this.config = config;
+    this.contentRepository = contentRepository;
   }
 
   public void initialize(DeeplConfiguration config) {
@@ -45,39 +48,40 @@ public class DeeplTranslationService {
    * @param targetLanguage the language to translate to
    * @return a string if the translation succeed
    */
-  public Optional<String> translate(String toTranslate, String sourceLanguage, String targetLanguage) {
-    try {
-      LOG.debug("Translating from {} to {}: {}", sourceLanguage, targetLanguage, toTranslate);
-      TextResult textResult = deepLClient.translateText(toTranslate, sourceLanguage, targetLanguage, config.getTextTranslationOptions());
-      return Optional.ofNullable(textResult.getText());
-    } catch (DeepLException | InterruptedException e) {
-      LOG.error("Unable to translate.", e);
-    }
-
-    // Unable to translate -> return input text
-    return Optional.of(toTranslate);
+  public Optional<String> translate(String toTranslate, String sourceLanguage, String targetLanguage) throws DeepLException, InterruptedException {
+    LOG.debug("Translating from {} to {}: {}", sourceLanguage, targetLanguage, toTranslate);
+    TextResult textResult = deepLClient.translateText(toTranslate, sourceLanguage, targetLanguage, config.getTextTranslationOptions());
+    return Optional.ofNullable(textResult.getText());
   }
 
   /**
    * Translate a xliff
    *
-   * @param xliff the xliff
+   * @param xliff  the xliff
+   * @param issues the issues map to fill with any issues that occur during translation
    */
-  public void translateXliff(Xliff xliff) {
+  public void translateXliff(Xliff xliff, Map<String, List<Content>> issues) throws Exception {
     for (Object o : xliff.getAnyAndFile()) {
       if (o instanceof File file) {
-        // DeepL (currently) only supports the language part of a locale for sourceLanguage
-        String sourceLanguage = Locale.forLanguageTag(file.getSourceLanguage()).getLanguage();
-        // determine target language to use for DeepL
-        String targetLanguage = getDeepLTargetLanguage(Locale.forLanguageTag(file.getTargetLanguage()), config);
-        for (Object groupOrTransUnitOrBinUnit : file.getBody().getGroupOrTransUnitOrBinUnit()) {
-          if (groupOrTransUnitOrBinUnit instanceof Group) {
-            handleGroup((Group) groupOrTransUnitOrBinUnit, sourceLanguage, targetLanguage);
-          } else {
-            LOG.info("Not sure how to handle " + groupOrTransUnitOrBinUnit);
-          }
+        try {
+          handleFile(file);
+        } catch (JAXBException jbe) {
+          String original = file.getOriginal();
+          LOG.warn("Failed to process {}.", original, jbe);
+          addTranslationIssue(issues, original);
         }
       }
+    }
+  }
+
+  private void addTranslationIssue(Map<String, List<Content>> issues, String versionId) {
+    try {
+      int contentId = IdHelper.parseContentIdFromVersionId(versionId);
+      Content sourceContent = contentRepository.getContent(String.valueOf(contentId));
+      List<Content> sourceContents = issues.computeIfAbsent(DeeplWorkflowErrorCodes.ITEM_TRANSLATION_FAILURE, k -> new ArrayList<>());
+      sourceContents.add(sourceContent);
+    } catch (Exception e) {
+      LOG.warn("Failed to add translation issue for {}.", versionId, e);
     }
   }
 
@@ -97,41 +101,52 @@ public class DeeplTranslationService {
     return targetLocale.getLanguage();
   }
 
-  private void handleGroup(Group group, String sourceLanguage, String targetLanguage) {
-    for (Object groupOrTransUnitOrBinUnit : group.getGroupOrTransUnitOrBinUnit()) {
-      if (groupOrTransUnitOrBinUnit instanceof TransUnit) {
-        handeTransUnit((TransUnit) groupOrTransUnitOrBinUnit, sourceLanguage, targetLanguage);
-      } else if (groupOrTransUnitOrBinUnit instanceof Group) {
-        handleGroup((Group) groupOrTransUnitOrBinUnit, sourceLanguage, targetLanguage);
+  private void handleFile(File file) throws Exception {
+    // DeepL (currently) only supports the language part of a locale for sourceLanguage
+    String sourceLanguage = Locale.forLanguageTag(file.getSourceLanguage()).getLanguage();
+    // determine target language to use for DeepL
+    String targetLanguage = getDeepLTargetLanguage(Locale.forLanguageTag(file.getTargetLanguage()), config);
+    for (Object groupOrTransUnitOrBinUnit : file.getBody().getGroupOrTransUnitOrBinUnit()) {
+      if (groupOrTransUnitOrBinUnit instanceof Group group) {
+        handleGroup(group, sourceLanguage, targetLanguage);
       } else {
         LOG.info("Not sure how to handle " + groupOrTransUnitOrBinUnit);
       }
     }
   }
 
-  private void handeTransUnit(TransUnit transUnit, String sourceLanguage, String targetLanguage) {
+  private void handleGroup(Group group, String sourceLanguage, String targetLanguage) throws Exception {
+    for (Object groupOrTransUnitOrBinUnit : group.getGroupOrTransUnitOrBinUnit()) {
+      if (groupOrTransUnitOrBinUnit instanceof TransUnit transUnit) {
+        handeTransUnit(transUnit, sourceLanguage, targetLanguage);
+      } else if (groupOrTransUnitOrBinUnit instanceof Group subGroup) {
+        handleGroup(subGroup, sourceLanguage, targetLanguage);
+      } else {
+        LOG.info("Not sure how to handle " + groupOrTransUnitOrBinUnit);
+      }
+    }
+  }
+
+  private void handeTransUnit(TransUnit transUnit, String sourceLanguage, String targetLanguage) throws Exception {
     transUnit.setApproved(AttrTypeYesNo.YES);
     Source source = transUnit.getSource();
     Target target = transUnit.getTarget();
     target.getContent().clear();
     Optional<String> sourceAsString = itemAsString(source, sourceLanguage, targetLanguage);
     if (sourceAsString.isPresent()) {
-      sourceAsString.flatMap(this::stringToItem).ifPresent(item -> handleContent(item.getContent(), target, sourceLanguage, targetLanguage));
+      Optional<Source> item = stringToItem(sourceAsString.get());
+      if (item.isPresent()) {
+        handleContent(item.get().getContent(), target, sourceLanguage, targetLanguage);
+      }
       target.setState("translated");
     } else {
       handleContent(source.getContent(), target, sourceLanguage, targetLanguage);
     }
   }
 
-  private Optional<String> itemAsString(Object source, String sourceLanguage, String targetLanguage) {
+  private Optional<String> itemAsString(Object source, String sourceLanguage, String targetLanguage) throws JAXBException, DeepLException, InterruptedException {
     StringWriter writer = new StringWriter();
-    try {
-      JAXBContext.newInstance(Xliff.class).createMarshaller().marshal(source, writer);
-    } catch (JAXBException e) {
-      LOG.error("Cannot marshal item " + source, e);
-      return Optional.empty();
-    }
-
+    JAXBContext.newInstance(Xliff.class).createMarshaller().marshal(source, writer);
     String result = writer.toString();
     if (result.startsWith(XML_HEADER)) {
       result = result.substring(XML_HEADER.length());
@@ -148,20 +163,17 @@ public class DeeplTranslationService {
     return Optional.empty();
   }
 
-  private Optional<Source> stringToItem(String source) {
+  private Optional<Source> stringToItem(String source) throws JAXBException {
     StringReader reader = new StringReader(XML_HEADER + SOURCE_PREFIX + source + SOURCE_SUFFIX);
-    try {
-      Object element = JAXBContext.newInstance(Xliff.class).createUnmarshaller().unmarshal(reader);
-      if (element instanceof Source) {
-        return Optional.of((Source) element);
-      }
-    } catch (JAXBException e) {
-      LOG.error("Cannot marshal item " + source, e);
+    Object element = JAXBContext.newInstance(Xliff.class).createUnmarshaller().unmarshal(reader);
+    if (element instanceof Source) {
+      return Optional.of((Source) element);
+    } else {
+      return Optional.empty();
     }
-    return Optional.empty();
   }
 
-  private void handleContent(List<Object> contents, Target target, String sourceLanguage, String targetLanguage) {
+  private void handleContent(List<Object> contents, Target target, String sourceLanguage, String targetLanguage) throws Exception {
     for (Object sourceEntry : contents) {
       if (sourceEntry instanceof String) {
         target.getContent().add(sourceEntry);
