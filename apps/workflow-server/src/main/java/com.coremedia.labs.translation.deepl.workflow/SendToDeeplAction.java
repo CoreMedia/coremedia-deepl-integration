@@ -13,6 +13,7 @@ import com.coremedia.labs.translation.deepl.workflow.config.DeeplConfiguration;
 import com.coremedia.labs.translation.deepl.workflow.config.DeeplConfigurationService;
 import com.coremedia.translate.item.ContentToTranslateItemTransformer;
 import com.coremedia.translate.item.TranslateItem;
+import com.coremedia.translate.workflow.AsRobotUser;
 import com.coremedia.translate.xliff.core.jaxb.Xliff;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,11 +76,16 @@ public class SendToDeeplAction extends DeeplAction {
     for (List<TranslateItem> localeListEntry : translationItemsByLocale.values()) {
       Xliff xliff = exporter.exportXliff(localeListEntry, XliffExportOptions.xliffExportOptions().option(XliffExportOptions.TargetOption.TARGET_SOURCE).build());
       translationService.translateXliff(xliff);
-      importer.importXliff(xliff);
+      try (AsRobotUser asRobotUser =  getAsRobotUser()) {
+        asRobotUser.call(() -> importer.importXliff(xliff));
+      }
     }
     return parameters.derivedContents;
   }
 
+  AsRobotUser getAsRobotUser() {
+    return new AsRobotUser(getConnection(), getSpringContext(), getCapSessionPool());
+  }
 
   private static Locale preferSiteLocale(ContentObjectSiteAspect aspect) {
     Site site = aspect.getSite();
