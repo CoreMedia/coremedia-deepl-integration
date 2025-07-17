@@ -4,12 +4,17 @@ import {
 import { workflowPlugins } from "@coremedia/studio-client.workflow-plugin-models/WorkflowPluginRegistry";
 import Deepl_properties from "./Deepl_properties";
 import deeplWorkflowIcon from "./icons/deepl-workflow.svg";
-import { Binding, CheckField } from "@coremedia/studio-client.workflow-plugin-models/CustomWorkflowApi";
+import {
+  Binding,
+  CheckField, StartWorkflowFormExtension,
+  TranslationWorkflowPlugin
+} from "@coremedia/studio-client.workflow-plugin-models/CustomWorkflowApi";
 import editorContext from "@coremedia/studio-client.main.editor-components/sdk/editorContext";
 import StudioConfigurationUtil
   from "@coremedia/studio-client.ext.cap-base-components/util/config/StudioConfigurationUtil";
 import additionalWorkflowIssues
   from "@coremedia/studio-client.ext.workflow-components/components/validation/issues/additionalWorkflowIssues";
+import { getLocalizer } from "@coremedia/studio-client.i18n-models";
 
 const WORKFLOW_NAME: string = "TranslationDeepl";
 const WORKFLOW_NAME_DIRECT: string = "TranslationDeeplDirect";
@@ -20,73 +25,53 @@ interface DeeplViewModel {
   createProject?: boolean;
 }
 
-workflowPlugins._.addTranslationWorkflowPlugin<DeeplViewModel>({
-  workflowType: "TRANSLATION",
-  workflowName: WORKFLOW_NAME,
-  createWorkflowPerTargetSite: false,
-  nextStepVariable: "translationAction",
-  transitions: [
-    {
-      task: "Review",
-      defaultNextTask: "finishTranslation",
-      nextSteps: [
-        {
-          name: "rollbackTranslation",
-          allowAlways: true,
-        },
-        {
-          name: "finishTranslation",
-          allowAlways: true,
-        },
-      ],
-    },
-  ],
-  startWorkflowFormExtension: {
+const getWorkflowPlugin = async (): Promise<TranslationWorkflowPlugin> => {
+  const localizer = await getLocalizer(Deepl_properties);
+  return {
+    workflowType: "TRANSLATION",
+    workflowName: WORKFLOW_NAME,
+    createWorkflowPerTargetSite: false,
+    nextStepVariable: "translationAction",
+    transitions: [
+      {
+        task: "Review",
+        defaultNextTask: "finishTranslation",
+        nextSteps: [
+          {
+            name: "rollbackTranslation",
+            allowAlways: true,
+          },
+          {
+            name: "finishTranslation",
+            allowAlways: true,
+          },
+        ],
+      },
+    ],
+    startWorkflowFormExtension: StartWorkflowFormExtension<DeeplViewModel>({
 
-    computeViewModel(): DeeplViewModel {
-      return { createProject: getCreateProjectFlagDefault() };
-    },
+      computeViewModel(): DeeplViewModel {
+        return { createProject: getCreateProjectFlagDefault() };
+      },
 
-    saveViewModel(viewModel: DeeplViewModel): Record<string, any> {
-      return { createProject: viewModel.createProject };
-    },
+      saveViewModel(viewModel: DeeplViewModel): Record<string, any> {
+        return { createProject: viewModel.createProject };
+      },
 
-    fields: [
-      CheckField({
-        label: Deepl_properties.TranslationDeepl_field_createProject_label,
-        tooltip: Deepl_properties.TranslationDeepl_field_createProject_tooltip,
-        value: Binding("createProject")
-      })
-    ]
-  }
+      fields: [
+        CheckField({
+          label: localizer("TranslationDeepl_field_createProject_label"),
+          tooltip: localizer("TranslationDeepl_field_createProject_tooltip"),
+          value: Binding("createProject")
+        })
+      ]
+    }),
+  };
+};
+
+getWorkflowPlugin().then((workflowPlugin) => {
+  workflowPlugins._.addTranslationWorkflowPlugin(workflowPlugin);
 });
-
-
-workflowPlugins._.addTranslationWorkflowPlugin<DeeplViewModel>({
-  workflowType: "TRANSLATION",
-  workflowName: WORKFLOW_NAME_DIRECT,
-  createWorkflowPerTargetSite: false,
-
-  startWorkflowFormExtension: {
-
-    computeViewModel(): DeeplViewModel {
-      return { createProject: getCreateProjectFlagDefault() };
-    },
-
-    saveViewModel(viewModel: DeeplViewModel): Record<string, any> {
-      return { createProject: viewModel.createProject };
-    },
-
-    fields: [
-      CheckField({
-        label: Deepl_properties.TranslationDeepl_field_createProject_label,
-        tooltip: Deepl_properties.TranslationDeepl_field_createProject_tooltip,
-        value: Binding("createProject")
-      })
-    ]
-  }
-});
-
 
 workflowLocalizationRegistry._.addLocalization(WORKFLOW_NAME, {
   displayName: Deepl_properties.TranslationDeepl_displayName,
