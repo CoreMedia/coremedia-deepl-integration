@@ -52,18 +52,26 @@ public class DeeplConfiguration {
    */
   protected List<String> passAsIsTargetLocales;
 
+  /**
+   * Map of fallback locales for languages when the requested target language is not supported by DeepL.
+   * Key: language code, Value: fallback locale to use instead.
+   */
+  protected Map<String, String> fallbackLocalesForLanguages;
+
   public DeeplConfiguration() {
     this.clientOptions = new DeepLClientOptions();
     this.textTranslationOptions = new TextTranslationOptions();
   }
 
   public DeeplConfiguration(Duration defaultTimeout,
-                            List<String> defaultPassAsIsTargetLocales) {
+                            List<String> defaultPassAsIsTargetLocales,
+                            Map<String, String> defaultFallbackLocalesForLanguages) {
     DeepLClientOptions clientOptions = new DeepLClientOptions();
     clientOptions.setTimeout(defaultTimeout);
     this.clientOptions = clientOptions;
     this.textTranslationOptions = new TextTranslationOptions();
     this.passAsIsTargetLocales = defaultPassAsIsTargetLocales;
+    this.fallbackLocalesForLanguages = defaultFallbackLocalesForLanguages;
   }
 
   public String getApiKey() {
@@ -112,6 +120,14 @@ public class DeeplConfiguration {
 
   public void setPassAsIsTargetLocales(List<String> passAsIsTargetLocales) {
     this.passAsIsTargetLocales = Collections.unmodifiableList(passAsIsTargetLocales);
+  }
+
+  public Map<String, String> getFallbackLocalesForLanguages() {
+    return fallbackLocalesForLanguages;
+  }
+
+  public void setFallbackLocalesForLanguages(Map<String, String> fallbackLocalesForLanguages) {
+    this.fallbackLocalesForLanguages = fallbackLocalesForLanguages;
   }
 
   public static DeeplConfiguration from(DeeplConfiguration source) {

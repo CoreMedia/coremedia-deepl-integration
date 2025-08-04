@@ -20,6 +20,7 @@ import edu.umd.cs.findbugs.annotations.NonNull;
 import edu.umd.cs.findbugs.annotations.Nullable;
 import jakarta.activation.MimeType;
 import jakarta.activation.MimeTypeParseException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -161,7 +162,9 @@ public abstract class DeeplAction<P, R>  extends SpringAwareLongAction {
     @SuppressWarnings("unchecked" /* per interface contract: result is the return value of #doExecute */)
     Result<R> r = (Result<R>) result;
     Process process = task.getContainingProcess();
-    process.set(issuesVariable, r.issues);
+    if (StringUtils.isNotBlank(issuesVariable) && r.issues != null) {
+      process.set(issuesVariable, r.issues);
+    }
     Object resultValue = r.extendedResult
             .map(extendedResult -> doStoreResult(task, extendedResult))
             .orElse(null);

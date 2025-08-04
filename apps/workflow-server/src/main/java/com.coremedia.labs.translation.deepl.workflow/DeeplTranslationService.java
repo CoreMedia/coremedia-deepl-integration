@@ -98,6 +98,9 @@ public class DeeplTranslationService {
     if (config.getPassAsIsTargetLocales().contains(languageTag)) {
       return languageTag;
     }
+    if (config.getFallbackLocalesForLanguages().containsKey(languageTag)) {
+      return config.getFallbackLocalesForLanguages().get(languageTag);
+    }
     return targetLocale.getLanguage();
   }
 
