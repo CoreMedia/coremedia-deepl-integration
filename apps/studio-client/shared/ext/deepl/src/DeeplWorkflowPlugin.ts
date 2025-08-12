@@ -25,7 +25,7 @@ interface DeeplViewModel {
   createProject?: boolean;
 }
 
-const getWorkflowPlugin = async (): Promise<TranslationWorkflowPlugin> => {
+const getTranslationWorkflowPlugin = async (): Promise<TranslationWorkflowPlugin> => {
   const localizer = await getLocalizer(Deepl_properties);
   return {
     workflowType: "TRANSLATION",
@@ -69,7 +69,7 @@ const getWorkflowPlugin = async (): Promise<TranslationWorkflowPlugin> => {
   };
 };
 
-getWorkflowPlugin().then((workflowPlugin) => {
+getTranslationWorkflowPlugin().then((workflowPlugin) => {
   workflowPlugins._.addTranslationWorkflowPlugin(workflowPlugin);
 });
 
@@ -81,6 +81,40 @@ workflowLocalizationRegistry._.addLocalization(WORKFLOW_NAME, {
     finishTranslation: Deepl_properties.TranslationDeepl_state_finishTranslation_displayName,
     rollbackTranslation: Deepl_properties.TranslationDeepl_state_rollbackTranslation_displayName
   }
+});
+
+
+const getDirectTranslationWorkflowPlugin = async (): Promise<TranslationWorkflowPlugin> => {
+  const localizer = await getLocalizer(Deepl_properties);
+  return {
+    workflowType: "TRANSLATION",
+    workflowName: WORKFLOW_NAME_DIRECT,
+    createWorkflowPerTargetSite: false,
+
+    startWorkflowFormExtension: StartWorkflowFormExtension<DeeplViewModel>({
+
+      computeViewModel(): DeeplViewModel {
+        return { createProject: getCreateProjectFlagDefault() };
+      },
+
+      saveViewModel(viewModel: DeeplViewModel): Record<string, any> {
+        return { createProject: viewModel.createProject };
+      },
+
+      fields: [
+        CheckField({
+          label: localizer("TranslationDeepl_field_createProject_label"),
+          tooltip: localizer("TranslationDeepl_field_createProject_tooltip"),
+          value: Binding("createProject")
+        })
+      ]
+    }),
+  };
+};
+
+
+getDirectTranslationWorkflowPlugin().then((workflowPlugin) => {
+  workflowPlugins._.addTranslationWorkflowPlugin(workflowPlugin);
 });
 
 workflowLocalizationRegistry._.addLocalization(WORKFLOW_NAME_DIRECT, {
