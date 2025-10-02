@@ -1,6 +1,5 @@
 package com.coremedia.labs.translation.deepl.workflow;
 
-import com.coremedia.blueprint.workflow.actions.CreateProjectActionConfiguration;
 import com.coremedia.cap.translate.xliff.config.XliffExporterConfiguration;
 import com.coremedia.cap.translate.xliff.config.XliffImporterConfiguration;
 import com.coremedia.translate.item.TranslateItemConfiguration;
@@ -21,8 +20,8 @@ import java.util.Map;
 @Import({
         XliffImporterConfiguration.class,
         XliffExporterConfiguration.class,
-        TranslateItemConfiguration.class,
-        CreateProjectActionConfiguration.class})
+        TranslateItemConfiguration.class
+})
 @PropertySource(value = "classpath:META-INF/coremedia/deepl-workflow.properties")
 @DefaultAnnotation(NonNull.class)
 public class TranslateDeeplConfiguration {

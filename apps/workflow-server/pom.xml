@@ -30,6 +30,7 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>create-project-workflow-action</artifactId>
       <version>${project.version}</version>
+      <scope>runtime</scope>
     </dependency>
 
 
