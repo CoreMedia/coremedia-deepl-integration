@@ -1,6 +1,5 @@
 package com.coremedia.labs.translation.deepl.workflow;
 
-import com.coremedia.blueprint.workflow.actions.CreateProjectActionConfiguration;
 import com.coremedia.cap.content.ContentRepository;
 import com.coremedia.cap.translate.xliff.config.XliffExporterConfiguration;
 import com.coremedia.cap.translate.xliff.config.XliffImporterConfiguration;
@@ -22,8 +21,8 @@ import org.springframework.context.annotation.Scope;
         DeeplConfigurationConfiguration.class,
         XliffImporterConfiguration.class,
         XliffExporterConfiguration.class,
-        TranslateItemConfiguration.class,
-        CreateProjectActionConfiguration.class})
+        TranslateItemConfiguration.class
+})
 @DefaultAnnotation(NonNull.class)
 public class TranslateDeeplAutoConfiguration {
 

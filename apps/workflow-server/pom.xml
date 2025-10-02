@@ -37,6 +37,7 @@
       <groupId>com.coremedia.blueprint</groupId>
       <artifactId>create-project-workflow-action</artifactId>
       <version>1-SNAPSHOT</version>
+      <scope>runtime</scope>
     </dependency>
 
     <!-- COREMEDIA dependencies -->
