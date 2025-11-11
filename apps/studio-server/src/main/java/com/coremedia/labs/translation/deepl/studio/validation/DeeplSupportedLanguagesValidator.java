@@ -23,7 +23,7 @@ public class DeeplSupportedLanguagesValidator implements WorkflowValidator {
   private static final String CMSETTINGS_SETTINGS = "settings";
   public static final String KEY_DEEPL_ROOT = "deepl";
   public static final String KEY_API_KEY = "apiKey";
-  private String apiKey;
+  protected String apiKey;
 
   //  private static final List<Locale> SUPPORTED_SOURCE_LOCALES = Stream.of("BG", "CS", "DA", "DE", "EL", "EN", "ES", "ET", "FI", "FR", "HU", "ID", "IT", "JA", "KO", "LT", "LV", "NB", "NL", "PL", "PT", "RO", "RU", "SK", "SL", "SV", "TR", "UK", "ZH").map(Locale::forLanguageTag).collect(Collectors.toList());
   //  private static final List<Locale> SUPPORTED_TARGET_LOCALES = Stream.of("BG", "CS", "DA", "DE", "EL", "EN", "EN-GB", "EN-US", "ES", "ET", "FI", "FR", "HU", "ID", "IT", "JA", "KO", "LT", "LV", "NB", "NL", "PL", "PT", "PT-BR", "PT-PT", "RO", "RU", "SK", "SL", "SV", "TR", "UK", "ZH").map(Locale::forLanguageTag).collect(Collectors.toList());
