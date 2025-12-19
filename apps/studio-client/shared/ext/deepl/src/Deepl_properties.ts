@@ -1,4 +1,6 @@
 interface Deepl_properties {
+  TranslationDeeplDirect_description: string;
+  TranslationDeeplDirect_displayName: string;
   TranslationDeepl_displayName: string,
   TranslationDeepl_description: string,
   TranslationDeepl_field_createProject_label: string;
@@ -24,8 +26,10 @@ interface Deepl_properties {
 }
 
 const Deepl_properties: Deepl_properties = {
-  TranslationDeepl_description: "Translation with DeepL",
-  TranslationDeepl_displayName: "Translation with DeepL",
+  TranslationDeepl_description: "Reviewed Translation with DeepL",
+  TranslationDeepl_displayName: "Reviewed Translation with DeepL",
+  TranslationDeeplDirect_displayName: "AI Translation with DeepL",
+  TranslationDeeplDirect_description: "AI Translation with DeepL",
   TranslationDeepl_field_createProject_label: "Create Project",
   TranslationDeepl_field_createProject_tooltip: "Create a project with all modified content when workflow is finished",
   TranslationDeepl_state_rollbackTranslation_displayName: "Reject changes",
@@ -44,7 +48,7 @@ const Deepl_properties: Deepl_properties = {
   "DEEPL-WF-20003_text": "The connection to the DeepL API failed.",
   "DEEPL-WF-20004_text": "The DeepL API endpoint was not found at the configured serverUrl.",
   "DEEPL-WF-50000_text": "The translation processing failed for some content items.",
-  failedLanguageValidation_text: "The DeepL language validation failed. Review Studio Server logs for more details.",
+  failedLanguageValidation_text: "The DeepL language validation failed. Review Studio Server logs for more details."
 };
 
 export default Deepl_properties;
