@@ -14,8 +14,6 @@
 
   <properties>
     <coremedia.project.extension.for>workflow-server</coremedia.project.extension.for>
-    <deepl.version>1.10.0</deepl.version>
-    <cm.middle.core.version>2506.0.2</cm.middle.core.version>
   </properties>
 
   <dependencies>
@@ -85,7 +83,6 @@
     <dependency>
       <groupId>com.deepl.api</groupId>
       <artifactId>deepl-java</artifactId>
-      <version>${deepl.version}</version>
     </dependency>
 
     <dependency>
@@ -150,23 +147,13 @@
 
   <dependencyManagement>
     <dependencies>
-
       <dependency>
-        <groupId>com.coremedia.cms</groupId>
-        <artifactId>middle-core-bom</artifactId>
-        <version>${cm.middle.core.version}</version>
+        <groupId>com.coremedia.labs.translation.deepl</groupId>
+        <artifactId>deepl-blueprint-bom</artifactId>
+        <version>1-SNAPSHOT</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
-
-      <dependency>
-        <groupId>com.coremedia.cms</groupId>
-        <artifactId>middle-thirdparty-bom</artifactId>
-        <version>${cm.middle.core.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
     </dependencies>
   </dependencyManagement>
 

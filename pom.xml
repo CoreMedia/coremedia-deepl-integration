@@ -13,6 +13,7 @@
   ]]></description>
 
   <modules>
+    <module>shared/middle/deepl-blueprint-bom</module>
     <module>shared/middle/deepl-config</module>
     <module>apps/studio-server</module>
     <module>apps/user-changes</module>

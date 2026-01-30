@@ -12,10 +12,6 @@
   <groupId>com.coremedia.labs.translation.deepl</groupId>
   <artifactId>deepl-config</artifactId>
 
-  <properties>
-    <deepl.version>1.10.0</deepl.version>
-    <modelmapper.version>3.2.3</modelmapper.version>
-  </properties>
   <dependencies>
 
     <!-- COREMEDIA dependencies -->
@@ -38,7 +34,6 @@
     <dependency>
       <groupId>com.deepl.api</groupId>
       <artifactId>deepl-java</artifactId>
-      <version>${deepl.version}</version>
     </dependency>
 
     <dependency>
@@ -69,7 +64,6 @@
     <dependency>
       <groupId>org.modelmapper</groupId>
       <artifactId>modelmapper</artifactId>
-      <version>${modelmapper.version}</version>
     </dependency>
 
     <dependency>
@@ -104,5 +98,17 @@
     </dependency>
 
   </dependencies>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>com.coremedia.labs.translation.deepl</groupId>
+        <artifactId>deepl-blueprint-bom</artifactId>
+        <version>1-SNAPSHOT</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
 </project>

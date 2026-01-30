@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.coremedia</groupId>
+    <artifactId>cms-blueprint-parent</artifactId>
+    <version>3.0.0</version>
+    <relativePath />
+  </parent>
+
+  <groupId>com.coremedia.labs.translation.deepl</groupId>
+  <artifactId>deepl-blueprint-bom</artifactId>
+  <version>1-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <properties>
+    <cm.version>2512.0.0</cm.version>
+    <deepl.version>1.14.0</deepl.version>
+    <modelmapper.version>3.2.3</modelmapper.version>
+  </properties>
+
+  <dependencyManagement>
+    <dependencies>
+
+      <dependency>
+        <groupId>com.deepl.api</groupId>
+        <artifactId>deepl-java</artifactId>
+        <version>${deepl.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <dependency>
+        <groupId>org.modelmapper</groupId>
+        <artifactId>modelmapper</artifactId>
+        <version>${modelmapper.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.coremedia.cms</groupId>
+        <artifactId>middle-core-bom</artifactId>
+        <version>${cm.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>com.coremedia.cms</groupId>
+        <artifactId>middle-thirdparty-bom</artifactId>
+        <version>${cm.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+</project>
