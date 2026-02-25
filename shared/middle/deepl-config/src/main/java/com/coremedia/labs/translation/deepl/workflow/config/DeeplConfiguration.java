@@ -58,6 +58,8 @@ public class DeeplConfiguration {
    */
   protected Map<String, String> fallbackLocalesForLanguages;
 
+  protected List<Map<String, String>> glossaries;
+
   public DeeplConfiguration() {
     this.clientOptions = new DeepLClientOptions();
     this.textTranslationOptions = new TextTranslationOptions();
@@ -128,6 +130,14 @@ public class DeeplConfiguration {
 
   public void setFallbackLocalesForLanguages(Map<String, String> fallbackLocalesForLanguages) {
     this.fallbackLocalesForLanguages = fallbackLocalesForLanguages;
+  }
+
+  public List<Map<String, String>> getGlossaries() {
+    return glossaries;
+  }
+
+  public void setGlossaries(List<Map<String, String>> glossaries) {
+    this.glossaries = glossaries;
   }
 
   public static DeeplConfiguration from(DeeplConfiguration source) {
@@ -212,6 +222,9 @@ public class DeeplConfiguration {
     } else {
       merged.getTextTranslationOptions().setOutlineDetection(defaultConfig.getTextTranslationOptions().isOutlineDetection());
       merged.getTextTranslationOptions().setPreserveFormatting(defaultConfig.getTextTranslationOptions().isPreserveFormatting());
+    }
+    if (otherMap.containsKey("glossaries")) {
+      merged.setGlossaries((List<Map<String, String>>) otherMap.get("glossaries"));
     }
     return merged;
   }
