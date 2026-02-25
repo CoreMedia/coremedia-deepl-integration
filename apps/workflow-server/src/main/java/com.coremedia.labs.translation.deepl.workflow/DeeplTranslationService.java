@@ -8,6 +8,7 @@ import com.coremedia.translate.xliff.core.jaxb.*;
 import com.deepl.api.DeepLClient;
 import com.deepl.api.DeepLException;
 import com.deepl.api.TextResult;
+import com.deepl.api.TextTranslationOptions;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import org.apache.commons.lang3.StringUtils;
@@ -27,7 +28,7 @@ public class DeeplTranslationService {
   public static final String SOURCE_PREFIX = "<source xmlns=\"urn:oasis:names:tc:xliff:document:1.2\">";
   public static final String SOURCE_SUFFIX = "</source>";
 
-  private final DeeplConfiguration config;
+  private DeeplConfiguration config;
   private final ContentRepository contentRepository;
   private DeepLClient deepLClient;
 
@@ -37,6 +38,7 @@ public class DeeplTranslationService {
   }
 
   public void initialize(DeeplConfiguration config) {
+    this.config = config;
     this.deepLClient = new DeepLClient(config.getApiKey(), config.getClientOptions());
   }
 
@@ -50,6 +52,14 @@ public class DeeplTranslationService {
    */
   public Optional<String> translate(String toTranslate, String sourceLanguage, String targetLanguage) throws DeepLException, InterruptedException {
     LOG.debug("Translating from {} to {}: {}", sourceLanguage, targetLanguage, toTranslate);
+    TextTranslationOptions textTranslationOptions = config.getTextTranslationOptions();
+    if (config.getGlossaries() != null && !config.getGlossaries().isEmpty()) {
+      String targetGlossary = config.getGlossaries().stream().filter(m -> targetLanguage.contains(m.get("locale")))
+              .findFirst()
+              .map(m -> m.get("glossaryId"))
+              .orElse(StringUtils.EMPTY);
+      textTranslationOptions.setGlossary(targetGlossary);
+    }
     TextResult textResult = deepLClient.translateText(toTranslate, sourceLanguage, targetLanguage, config.getTextTranslationOptions());
     return Optional.ofNullable(textResult.getText());
   }
