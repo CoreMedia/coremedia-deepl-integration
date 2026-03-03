@@ -50,7 +50,7 @@ public class DeeplTranslationService {
    * @param targetLanguage the language to translate to
    * @return a string if the translation succeed
    */
-  public Optional<String> translate(String toTranslate, String sourceLanguage, String targetLanguage) throws DeepLException, InterruptedException {
+  public Optional<String> translate(String toTranslate, String sourceLanguage, String targetLanguage, boolean isRichtext) throws DeepLException, InterruptedException {
     LOG.debug("Translating from {} to {}: {}", sourceLanguage, targetLanguage, toTranslate);
     TextTranslationOptions textTranslationOptions = config.getTextTranslationOptions();
     if (config.getGlossaries() != null && !config.getGlossaries().isEmpty()) {
@@ -59,6 +59,9 @@ public class DeeplTranslationService {
               .map(m -> m.get("glossaryId"))
               .orElse(StringUtils.EMPTY);
       textTranslationOptions.setGlossary(targetGlossary);
+    }
+    if (isRichtext) {
+        textTranslationOptions.setTagHandling("xml");
     }
     TextResult textResult = deepLClient.translateText(toTranslate, sourceLanguage, targetLanguage, config.getTextTranslationOptions());
     return Optional.ofNullable(textResult.getText());
@@ -170,7 +173,7 @@ public class DeeplTranslationService {
 
     String key = result.replace("\n", "").replaceAll("\\s+", " ").trim();
     if (StringUtils.isNotBlank(key)) {
-      return translate(key, sourceLanguage, targetLanguage);
+      return translate(key, sourceLanguage, targetLanguage, true);
     }
 
     return Optional.empty();
