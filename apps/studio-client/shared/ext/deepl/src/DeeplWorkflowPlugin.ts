@@ -1,35 +1,36 @@
-import {
-  workflowLocalizationRegistry
-} from "@coremedia/studio-client.workflow-plugin-models/WorkflowLocalizationRegistry";
-import { workflowPlugins } from "@coremedia/studio-client.workflow-plugin-models/WorkflowPluginRegistry";
 import Deepl_properties from "./Deepl_properties";
-import deeplWorkflowIcon from "./icons/deepl-workflow.svg";
 import {
   Binding,
-  CheckField, StartWorkflowFormExtension,
-  TranslationWorkflowPlugin
-} from "@coremedia/studio-client.workflow-plugin-models/CustomWorkflowApi";
-import editorContext from "@coremedia/studio-client.main.editor-components/sdk/editorContext";
-import StudioConfigurationUtil
-  from "@coremedia/studio-client.ext.cap-base-components/util/config/StudioConfigurationUtil";
-import additionalWorkflowIssues
-  from "@coremedia/studio-client.ext.workflow-components/components/validation/issues/additionalWorkflowIssues";
-import { getLocalizer } from "@coremedia/studio-client.i18n-models";
+  CheckField,
+  StartWorkflowFormExtension,
+  TranslationWorkflowPlugin,
+  WorkflowIssuesLocalization, WorkflowLocalization, workflowLocalizationRegistry, workflowPlugins
+} from "@coremedia/studio-client.workflow-plugin-models";
+import { getLocalizer, registerLocale } from "@coremedia/studio-client.i18n-models";
+import deeplWorkflowIcon from "./icons/deepl-workflow.svg";
 
-const WORKFLOW_NAME: string = "TranslationDeepl";
-const WORKFLOW_NAME_DIRECT: string = "TranslationDeeplDirect";
-const DEEPL_SETTINGS_BUNDLE: string = "Translation Services/DeepL";
-const DEEPL_STRUCT_NAME: string = "deepl";
+// Register localization bundles
+registerLocale(Deepl_properties, "de", async () => {
+  await import("./Deepl_de_properties");
+});
+registerLocale(Deepl_properties, "ja", async () => {
+  await import("./Deepl_ja_properties");
+});
+
+const DEEPL_REVIEWED_TRANSLATION_WORKFLOW_NAME: string = "TranslationDeepl";
+const DEEPL_DIRECT_TRANSLATION_WORKFLOW: string = "TranslationDeeplDirect";
 
 interface DeeplViewModel {
   createProject?: boolean;
 }
 
-const getTranslationWorkflowPlugin = async (): Promise<TranslationWorkflowPlugin> => {
+// --- DEEPL REVIEWED WORKFLOW ---
+
+const getDeeplReviewedTranslationWorkflowPlugin = async (): Promise<TranslationWorkflowPlugin> => {
   const localizer = await getLocalizer(Deepl_properties);
   return {
     workflowType: "TRANSLATION",
-    workflowName: WORKFLOW_NAME,
+    workflowName: DEEPL_REVIEWED_TRANSLATION_WORKFLOW_NAME,
     createWorkflowPerTargetSite: false,
     nextStepVariable: "translationAction",
     transitions: [
@@ -51,7 +52,8 @@ const getTranslationWorkflowPlugin = async (): Promise<TranslationWorkflowPlugin
     startWorkflowFormExtension: StartWorkflowFormExtension<DeeplViewModel>({
 
       computeViewModel(): DeeplViewModel {
-        return { createProject: getCreateProjectFlagDefault() };
+        // return { createProject: getCreateProjectFlagDefault() };
+        return { createProject: false };
       },
 
       saveViewModel(viewModel: DeeplViewModel): Record<string, any> {
@@ -69,32 +71,39 @@ const getTranslationWorkflowPlugin = async (): Promise<TranslationWorkflowPlugin
   };
 };
 
-getTranslationWorkflowPlugin().then((workflowPlugin) => {
+getDeeplReviewedTranslationWorkflowPlugin().then((workflowPlugin) => {
   workflowPlugins._.addTranslationWorkflowPlugin(workflowPlugin);
 });
 
-workflowLocalizationRegistry._.addLocalization(WORKFLOW_NAME, {
-  displayName: Deepl_properties.TranslationDeepl_displayName,
-  description: Deepl_properties.TranslationDeepl_description,
-  svgIcon: deeplWorkflowIcon,
-  states: {
-    finishTranslation: Deepl_properties.TranslationDeepl_state_finishTranslation_displayName,
-    rollbackTranslation: Deepl_properties.TranslationDeepl_state_rollbackTranslation_displayName
-  }
+const getDeeplReviewedTranslationWorkflowLocalization = async (): Promise<WorkflowLocalization> => {
+  return {
+    displayName: Deepl_properties.TranslationDeepl_displayName,
+    description: Deepl_properties.TranslationDeepl_description,
+    svgIcon: deeplWorkflowIcon,
+    states: {
+      finishTranslation: Deepl_properties.TranslationDeepl_state_finishTranslation_displayName,
+      rollbackTranslation: Deepl_properties.TranslationDeepl_state_rollbackTranslation_displayName
+    }
+  };
+};
+
+getDeeplReviewedTranslationWorkflowLocalization().then((workflowLocalization) => {
+  workflowLocalizationRegistry._.addLocalization(DEEPL_REVIEWED_TRANSLATION_WORKFLOW_NAME, workflowLocalization);
 });
 
+// --- DEEPL DIRECT WORKFLOW ---
 
-const getDirectTranslationWorkflowPlugin = async (): Promise<TranslationWorkflowPlugin> => {
+const getDeeplDirectTranslationWorkflowPlugin = async (): Promise<TranslationWorkflowPlugin> => {
   const localizer = await getLocalizer(Deepl_properties);
   return {
     workflowType: "TRANSLATION",
-    workflowName: WORKFLOW_NAME_DIRECT,
+    workflowName: DEEPL_DIRECT_TRANSLATION_WORKFLOW,
     createWorkflowPerTargetSite: false,
 
     startWorkflowFormExtension: StartWorkflowFormExtension<DeeplViewModel>({
 
       computeViewModel(): DeeplViewModel {
-        return { createProject: getCreateProjectFlagDefault() };
+        return { createProject: false };
       },
 
       saveViewModel(viewModel: DeeplViewModel): Record<string, any> {
@@ -112,51 +121,57 @@ const getDirectTranslationWorkflowPlugin = async (): Promise<TranslationWorkflow
   };
 };
 
-
-getDirectTranslationWorkflowPlugin().then((workflowPlugin) => {
+getDeeplDirectTranslationWorkflowPlugin().then((workflowPlugin) => {
   workflowPlugins._.addTranslationWorkflowPlugin(workflowPlugin);
 });
 
-workflowLocalizationRegistry._.addLocalization(WORKFLOW_NAME_DIRECT, {
-  displayName: Deepl_properties.TranslationDeeplDirect_displayName,
-  description: Deepl_properties.TranslationDeeplDirect_description,
-  svgIcon: deeplWorkflowIcon,
+const getDeeplDirectTranslationWorkflowLocalization = async (): Promise<WorkflowLocalization> => {
+  return {
+    displayName: Deepl_properties.TranslationDeeplDirect_displayName,
+    description: Deepl_properties.TranslationDeeplDirect_description,
+    svgIcon: deeplWorkflowIcon,
+  };
+};
+
+getDeeplDirectTranslationWorkflowLocalization().then((workflowLocalization) => {
+  workflowLocalizationRegistry._.addLocalization(DEEPL_DIRECT_TRANSLATION_WORKFLOW, workflowLocalization);
 });
 
-workflowLocalizationRegistry._.addIssuesLocalization({
-  "DEEPL-WF-10000": Deepl_properties["DEEPL-WF-10000_text"],
-  "DEEPL-WF-20000": Deepl_properties["DEEPL-WF-20000_text"],
-  "DEEPL-WF-20001": Deepl_properties["DEEPL-WF-20001_text"],
-  "DEEPL-WF-20002": Deepl_properties["DEEPL-WF-20002_text"],
-  "DEEPL-WF-20003": Deepl_properties["DEEPL-WF-20003_text"],
-  "DEEPL-WF-20004": Deepl_properties["DEEPL-WF-20004_text"],
-  "DEEPL-WF-50000": Deepl_properties["DEEPL-WF-50000_text"],
-  failedLanguageValidation: Deepl_properties.failedLanguageValidation_text,
-  unsupportedSourceLocales: {
-    singular: Deepl_properties.ERROR_singular_text,
-    plural:Deepl_properties.ERROR_plural_text,
-  },
-  unsupportedTargetLocales: {
-    singular: Deepl_properties.WARN_target_singular_text,
-    plural:Deepl_properties.WARN_target_plural_text,
-  },
+// --- DEEPL WORKFLOW ISSUES LOCALIZATION ---
+const getWorkflowIssuesLocalization = async (): Promise<WorkflowIssuesLocalization> => {
+  const localize = await getLocalizer(Deepl_properties);
+  return {
+    "DEEPL-WF-10000": localize("DEEPL-WF-10000_text"),
+    "DEEPL-WF-20000": localize("DEEPL-WF-20000_text"),
+    "DEEPL-WF-20001": localize("DEEPL-WF-20001_text"),
+    "DEEPL-WF-20002": localize("DEEPL-WF-20002_text"),
+    "DEEPL-WF-20003": localize("DEEPL-WF-20003_text"),
+    "DEEPL-WF-20004": localize("DEEPL-WF-20004_text"),
+    "DEEPL-WF-50000": localize("DEEPL-WF-50000_text"),
+    failedLanguageValidation: localize("failedLanguageValidation_text"),
+    unsupportedSourceLocales: {
+      singular: localize("ERROR_singular_text"),
+      plural: localize("ERROR_plural_text"),
+    },
+    unsupportedTargetLocales: {
+      singular: localize("WARN_target_singular_text"),
+      plural: localize("WARN_target_plural_text"),
+    },
 
-  SUCCESS: {
-    singular: Deepl_properties.SUCCESS_singular_text,
-    plural: Deepl_properties.SUCCESS_plural_text,
-  }
+    SUCCESS: {
+      singular: localize("SUCCESS_singular_text"),
+      plural: localize("SUCCESS_plural_text"),
+    }
+  };
+};
+
+getWorkflowIssuesLocalization().then((workflowIssuesLocalization) => {
+  workflowLocalizationRegistry._.addIssuesLocalization(workflowIssuesLocalization);
 });
 
-function getCreateProjectFlagDefault(): boolean {
-  let preferredSite = editorContext._.getSitesService().getPreferredSite();
-  const deeplSettings = StudioConfigurationUtil.getConfiguration(DEEPL_SETTINGS_BUNDLE, DEEPL_STRUCT_NAME, preferredSite);
-  if (deeplSettings) {
-    return deeplSettings.get("createProject");
-  }
-  return undefined;
-}
-
+// TODO: Not supported by CustomWorkflowAPI yet
 // Add validation issue mappings for ui components in workflow dialog (see: WorkflowComponentValidationStateUtil.ts)
+/*
 const CONTENT_RELATED_ISSUES = [
   {
     wfIssuesCode: "unsupportedSourceLocales",
@@ -187,4 +202,4 @@ function addValidationStateMapping(issueGroupName: string, issues: Array<{
     additionalWorkflowIssues._.set(issueGroupName, issues);
   }
 }
-
+*/

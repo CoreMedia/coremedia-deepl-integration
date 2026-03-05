@@ -1,7 +1,6 @@
-import ResourceBundleUtil from "@jangaroo/runtime/l10n/ResourceBundleUtil";
 import Deepl_properties from "./Deepl_properties";
 
-ResourceBundleUtil.override(Deepl_properties, {
+Object.assign(Deepl_properties, {
   TranslationDeepl_description: "DeepLによる翻訳",
   TranslationDeepl_displayName: "DeepLによる翻訳",
 
@@ -11,4 +10,4 @@ ResourceBundleUtil.override(Deepl_properties, {
   ERROR_plural_text: "Deepl でサポートされていない言語のため、さまざまなコンテンツ項目を翻訳できません。",
   WARN_target_singular_text: "翻訳するサポートされていないサイトのチェックを外します。詳細は、\"DeepL ドキュメント\" を参照してください",
   WARN_target_plural_text:"サポートされていない翻訳のチェックボックスをオフにします。詳細は、DeepL のドキュメントを参照してください。",
-});
+} satisfies Partial<Deepl_properties>);
