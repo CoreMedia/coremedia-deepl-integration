@@ -4,7 +4,10 @@ import {
   CheckField,
   StartWorkflowFormExtension,
   TranslationWorkflowPlugin,
-  WorkflowIssuesLocalization, WorkflowLocalization, workflowLocalizationRegistry, workflowPlugins
+  WorkflowIssuesLocalization,
+  WorkflowLocalizationConfig,
+  workflowLocalizationRegistry,
+  workflowPlugins
 } from "@coremedia/studio-client.workflow-plugin-models";
 import { getLocalizer, registerLocale } from "@coremedia/studio-client.i18n-models";
 import deeplWorkflowIcon from "./icons/deepl-workflow.svg";
@@ -75,7 +78,7 @@ getDeeplReviewedTranslationWorkflowPlugin().then((workflowPlugin) => {
   workflowPlugins._.addTranslationWorkflowPlugin(workflowPlugin);
 });
 
-const getDeeplReviewedTranslationWorkflowLocalization = async (): Promise<WorkflowLocalization> => {
+const getDeeplReviewedTranslationWorkflowLocalization = async (): Promise<WorkflowLocalizationConfig> => {
   return {
     displayName: Deepl_properties.TranslationDeepl_displayName,
     description: Deepl_properties.TranslationDeepl_description,
@@ -125,7 +128,7 @@ getDeeplDirectTranslationWorkflowPlugin().then((workflowPlugin) => {
   workflowPlugins._.addTranslationWorkflowPlugin(workflowPlugin);
 });
 
-const getDeeplDirectTranslationWorkflowLocalization = async (): Promise<WorkflowLocalization> => {
+const getDeeplDirectTranslationWorkflowLocalization = async (): Promise<WorkflowLocalizationConfig> => {
   return {
     displayName: Deepl_properties.TranslationDeeplDirect_displayName,
     description: Deepl_properties.TranslationDeeplDirect_description,

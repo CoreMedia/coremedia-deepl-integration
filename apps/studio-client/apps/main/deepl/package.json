@@ -19,10 +19,11 @@
     "webpack-cli": "catalog:"
   },
   "scripts": {
-    "clean": "rimraf ./dist && rimraf ./build",
-    "build": "jangaroo build",
-    "watch": "jangaroo watch",
-    "lint": "eslint"
+    "clean": "rimraf ./dist",
+    "prebuild": "sync-tsconfig-project-references src --includeDevDependencies",
+    "build": "tsc --project src && webpack build --mode=production",
+    "watch": "webpack watch --mode=development",
+    "lint": "eslint \"src/**/*.ts*\""
   },
   "exports": {
     "./appEntry.js": {
