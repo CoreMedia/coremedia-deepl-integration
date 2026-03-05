@@ -1,18 +1,22 @@
 {
-  "name": "@coremedia-labs/studio-client.workflow.deepl-studio-client",
+  "name": "@coremedia-labs/studio-client.workflow.deepl-workflow",
   "author": "CoreMedia GmbH",
   "version": "1.0.0-SNAPSHOT",
   "license": "CoreMedia Open Source License",
   "private": true,
   "dependencies": {
-    "@coremedia-labs/studio-client.ext.deepl-studio-client": "workspace:*"
+    "@coremedia-labs/studio-client.shared.deepl-workflow": "workspace:*"
   },
   "devDependencies": {
-    "@coremedia/studio-client.ext.eslint-config": "catalog:",
-    "@jangaroo/build": "catalog:",
-    "@jangaroo/core": "catalog:",
+    "@babel/core": "catalog:",
+    "@coremedia/studio-client.build-config": "catalog:",
+    "@coremedia/studio-client.eslint-config": "catalog:",
+    "@coremedia/studio-client.workflow.shared-modules": "catalog:",
     "eslint": "catalog:",
-    "rimraf": "catalog:"
+    "rimraf": "catalog:",
+    "typescript": "catalog:",
+    "webpack": "catalog:",
+    "webpack-cli": "catalog:"
   },
   "scripts": {
     "clean": "rimraf ./dist && rimraf ./build",
@@ -21,21 +25,27 @@
     "lint": "eslint"
   },
   "exports": {
-    "./*": {
-      "types": "./src/*.ts",
-      "default": "./dist/src/*.js"
+    "./appEntry.js": {
+      "default": "./dist/appEntry.js"
     }
   },
   "coremedia": {
-    "projectExtensionFor": "studio-client.workflow"
+    "projectExtensionFor": "studio-client.workflow",
+    "plugins": {
+      "workflow_deeplWorkflowPlugin": "./dist/appEntry.js"
+    }
   },
   "publishConfig": {
     "directory": "dist",
     "linkDirectory": false,
     "exports": {
-      "./*": {
-        "types": "./src/*.d.ts",
-        "default": "./src/*.js"
+      "./appEntry.js": {
+        "default": "./appEntry.js"
+      }
+    },
+    "coremedia": {
+      "plugins": {
+        "workflow_deeplWorkflowPlugin": "./appEntry.js"
       }
     }
   }
