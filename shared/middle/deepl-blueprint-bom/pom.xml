@@ -42,21 +42,6 @@
         <version>${modelmapper.version}</version>
       </dependency>
 
-      <dependency>
-        <groupId>com.coremedia.cms</groupId>
-        <artifactId>middle-core-bom</artifactId>
-        <version>${cm.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-
-      <dependency>
-        <groupId>com.coremedia.cms</groupId>
-        <artifactId>middle-thirdparty-bom</artifactId>
-        <version>${cm.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
 
     </dependencies>
   </dependencyManagement>

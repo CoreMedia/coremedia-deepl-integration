@@ -82,6 +82,9 @@
               targetSiteIdVariable="targetSiteId"/>
       <Action class="com.coremedia.translate.workflow.ExtractTranslationWorkflowRobotUserAction"
               resultVariable="robotUser"/>
+      <!-- SALESDEMO Add variants -->
+      <Action class="com.coremedia.blueprint.workflow.actions.GetDependantVariantsAction"
+              masterContentObjectsVariable="masterContentObjects" />
       <!-- Find and filter derived contents -->
       <Action class="com.coremedia.translate.workflow.GetDerivedContentsAction"
               masterContentObjectsVariable="masterContentObjects"

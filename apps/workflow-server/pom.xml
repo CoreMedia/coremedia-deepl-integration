@@ -14,6 +14,7 @@
 
   <properties>
     <coremedia.project.extension.for>workflow-server</coremedia.project.extension.for>
+    <cm.version>2512.0.0</cm.version>
   </properties>
 
   <dependencies>
@@ -77,6 +78,7 @@
     <dependency>
       <groupId>com.coremedia.cms</groupId>
       <artifactId>middle.coremedia-validation</artifactId>
+      <version>${cm.version}</version>
     </dependency>
 
     <!-- THIRD-PARTY dependencies -->
