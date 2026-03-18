@@ -24,7 +24,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <docs.directory>${project.basedir}/docs</docs.directory>
-    <deepl.version>1.10.0</deepl.version>
+    <deepl.version>1.14.0</deepl.version>
     <cm.middle.core.version>2506.0.2</cm.middle.core.version>
   </properties>
 

@@ -60,6 +60,13 @@ public class DeeplTranslationService {
               .orElse(StringUtils.EMPTY);
       textTranslationOptions.setGlossary(targetGlossary);
     }
+    if (config.getStyleRules() != null && !config.getStyleRules().isEmpty()) {
+      String targetStyleRules = config.getStyleRules().stream().filter(m -> targetLanguage.contains(m.get("locale")))
+              .findFirst()
+              .map(m -> m.get("styleRulesId"))
+              .orElse(StringUtils.EMPTY);
+      textTranslationOptions.setStyleId(targetStyleRules);
+    }
     if (isRichtext) {
         textTranslationOptions.setTagHandling("xml");
     }

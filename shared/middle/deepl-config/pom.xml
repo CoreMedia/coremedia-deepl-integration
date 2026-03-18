@@ -13,7 +13,7 @@
   <artifactId>deepl-config</artifactId>
 
   <properties>
-    <deepl.version>1.10.0</deepl.version>
+    <deepl.version>1.14.0</deepl.version>
     <modelmapper.version>3.2.3</modelmapper.version>
   </properties>
   <dependencies>
