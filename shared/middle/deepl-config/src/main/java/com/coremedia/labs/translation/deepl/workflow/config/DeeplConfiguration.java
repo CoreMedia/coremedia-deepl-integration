@@ -60,6 +60,8 @@ public class DeeplConfiguration {
 
   protected List<Map<String, String>> glossaries;
 
+  protected List<Map<String, String>> styleRules;
+
   public DeeplConfiguration() {
     this.clientOptions = new DeepLClientOptions();
     this.textTranslationOptions = new TextTranslationOptions();
@@ -138,6 +140,14 @@ public class DeeplConfiguration {
 
   public void setGlossaries(List<Map<String, String>> glossaries) {
     this.glossaries = glossaries;
+  }
+
+  public List<Map<String, String>> getStyleRules() {
+    return styleRules;
+  }
+
+  public void setStyleRules(List<Map<String, String>> styleRules) {
+    this.styleRules = styleRules;
   }
 
   public static DeeplConfiguration from(DeeplConfiguration source) {
@@ -225,6 +235,9 @@ public class DeeplConfiguration {
     }
     if (otherMap.containsKey("glossaries")) {
       merged.setGlossaries((List<Map<String, String>>) otherMap.get("glossaries"));
+    }
+    if (otherMap.containsKey("styleRules")) {
+      merged.setStyleRules((List<Map<String, String>>) otherMap.get("styleRules"));
     }
     return merged;
   }
