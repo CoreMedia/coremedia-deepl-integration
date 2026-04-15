@@ -82,7 +82,6 @@ public class SendToDeeplAction extends DeeplAction<SendToDeeplAction.Parameters,
       try (AsRobotUser asRobotUser = getAsRobotUser()) {
         asRobotUser.call(() -> importer.importXliff(xliff));
       }
-      importer.importXliff(xliff);
     }
   }
 
