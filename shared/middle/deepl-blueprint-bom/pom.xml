@@ -16,9 +16,9 @@
   <packaging>pom</packaging>
 
   <properties>
-    <cm.version>2512.0.0</cm.version>
+    <cm.version>2512.0.2</cm.version>
     <deepl.version>1.14.0</deepl.version>
-    <modelmapper.version>3.2.3</modelmapper.version>
+    <modelmapper.version>3.2.6</modelmapper.version>
   </properties>
 
   <dependencyManagement>
