@@ -10,7 +10,7 @@ import com.coremedia.rest.cap.workflow.validation.model.ValidationTask;
 import com.coremedia.rest.cap.workflow.validation.model.WorkflowStartValidators;
 import com.coremedia.rest.cap.workflow.validation.model.WorkflowTaskValidators;
 import com.coremedia.rest.cap.workflow.validation.model.WorkflowValidatorsModel;
-import com.coremedia.springframework.customizer.Customize;
+import com.coremedia.rest.cap.workflow.validation.preparation.WorkflowValidationPreparation;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -32,10 +32,11 @@ public class DeeplWorkflowValidationAutoConfiguration {
   public static final String TRANSLATION_DEEPL_DIRECT_VALIDATOR_KEY = "TranslationDeeplDirect";
 
   @Bean
-  WorkflowValidatorsModel translationDeeplWFValidators(@Qualifier(TRANSLATION_START_VALIDATORS) WorkflowStartValidators translationStartValidators,
+  WorkflowValidatorsModel translationDeeplWFValidators(WorkflowValidationPreparation translationValidationPreparation,
+                                                       @Qualifier(TRANSLATION_START_VALIDATORS) List<WorkflowValidator> translationStartValidators,
                                                        @Qualifier(TRANSLATION_WFNOT_RUNNING) List<WorkflowValidator> translationWFNotRunning,
                                                        @Qualifier(TRANSLATION_WFRUNNING) List<WorkflowValidator> translationWFRunning,
-                                                       @Qualifier(TASK_ERROR_VALIDATOR) WorkflowValidator taskErrorValidator,
+                                                       WorkflowValidator taskErrorValidator,
                                                        DeeplConfigurationService deeplConfigurationService,
                                                        SitesService sitesService) {
     ValidationTask runningTask = new ValidationTask(TRANSLATE_TASK_NAME, TaskState.RUNNING);
@@ -52,20 +53,18 @@ public class DeeplWorkflowValidationAutoConfiguration {
 
     List<WorkflowValidator> workflowValidators = new ArrayList<>();
     workflowValidators.add(new DeeplSupportedLanguagesValidator(deeplConfigurationService, sitesService));
-    workflowValidators.addAll(translationStartValidators.getWorkflowValidators());
-    WorkflowStartValidators deeplStartValidators = new WorkflowStartValidators(
-            translationStartValidators.getWorkflowValidationPreparation(), workflowValidators
-    );
+    workflowValidators.addAll(translationStartValidators);
+    WorkflowStartValidators deeplStartValidators = new WorkflowStartValidators(translationValidationPreparation, workflowValidators);
 
     return new WorkflowValidatorsModel(TRANSLATION_DEEPL_VALIDATOR_KEY, taskValidators, deeplStartValidators);
   }
 
 
   @Bean
-  WorkflowValidatorsModel translationDeeplDirectWFValidators(@Qualifier(TRANSLATION_START_VALIDATORS) WorkflowStartValidators translationStartValidators,
+  WorkflowValidatorsModel translationDeeplDirectWFValidators(WorkflowValidationPreparation translationValidationPreparation,
+                                                             @Qualifier(TRANSLATION_START_VALIDATORS) List<WorkflowValidator> translationStartValidators,
                                                              @Qualifier(TRANSLATION_WFNOT_RUNNING) List<WorkflowValidator> translationWFNotRunning,
                                                              @Qualifier(TRANSLATION_WFRUNNING) List<WorkflowValidator> translationWFRunning,
-                                                             @Qualifier(TASK_ERROR_VALIDATOR) WorkflowValidator taskErrorValidator,
                                                              DeeplConfigurationService deeplConfigurationService,
                                                              SitesService sitesService) {
     ValidationTask runningTask = new ValidationTask(TRANSLATE_TASK_NAME, TaskState.RUNNING);
@@ -79,10 +78,8 @@ public class DeeplWorkflowValidationAutoConfiguration {
 
     List<WorkflowValidator> workflowValidators = new ArrayList<>();
     workflowValidators.add(new DeeplSupportedLanguagesValidator(deeplConfigurationService, sitesService));
-    workflowValidators.addAll(translationStartValidators.getWorkflowValidators());
-    WorkflowStartValidators deeplStartValidators = new WorkflowStartValidators(
-            translationStartValidators.getWorkflowValidationPreparation(), workflowValidators
-    );
+    workflowValidators.addAll(translationStartValidators);
+    WorkflowStartValidators deeplStartValidators = new WorkflowStartValidators(translationValidationPreparation, workflowValidators);
 
     return new WorkflowValidatorsModel(TRANSLATION_DEEPL_DIRECT_VALIDATOR_KEY, taskValidators, deeplStartValidators);
   }
