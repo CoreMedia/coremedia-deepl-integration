@@ -130,17 +130,17 @@
               checkInContent="true"/>
     </AutomatedTask>
 
-    <AutomatedTask name="SendToTranslationService" successor="AssignSelf">
+    <AutomatedTask name="SendToTranslationService" successor="Review">
       <Action class="com.coremedia.labs.translation.deepl.workflow.SendToDeeplAction"
               derivedContentsVariable="derivedContents"
               masterContentObjectsVariable="masterContentObjects"
               issuesVariable="workflowActionIssues"/>
     </AutomatedTask>
 
-    <AutomatedTask name="AssignSelf"
+<!--    <AutomatedTask name="AssignSelf"
                    description="assignuser-task" successor="Review">
       <Action class="ForceUser" task="Review" userVariable="OWNER_"/>
-    </AutomatedTask>
+    </AutomatedTask>-->
 
     <UserTask name="Review"
               successor="Switch" reexecutable="true"
